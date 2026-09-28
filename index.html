@@ -80,7 +80,8 @@ svg.i{width:22px;height:22px;flex:none}
 .row .title{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .sub{font-size:13px;color:var(--label-2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .sub.wrap{white-space:normal;line-height:1.45}
-.row .trail{color:var(--label-2);font-size:15px;display:flex;align-items:center;gap:6px;flex:none;max-width:55%;text-align:right}
+.row .trail{color:var(--label-2);font-size:15px;display:flex;align-items:center;gap:6px;flex:none;max-width:45%;text-align:right}
+.row > span.grow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .trail span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row.tap:active{background:var(--card-2)}
 .row.red{color:var(--red)}
@@ -151,6 +152,11 @@ svg.i{width:22px;height:22px;flex:none}
 .nudge .ico svg{width:20px;height:20px}
 .nudge .t{font-size:15px;font-weight:600}
 .nudge .s{font-size:13px;color:var(--label-2)}
+.steps{list-style:none;margin:12px 0 14px;padding:0;display:grid;gap:10px;counter-reset:step}
+.steps li{counter-increment:step;display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.4;color:var(--label-2)}
+.steps li::before{content:counter(step);flex:none;width:22px;height:22px;border-radius:50%;background:var(--blue-soft);color:var(--blue);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.steps b{color:var(--label)}
+.link-inline{color:var(--blue);font-weight:600;font-size:inherit;padding:0}
 .nudge .s svg{width:15px;height:15px;vertical-align:-2px;color:var(--blue)}
 
 /* ---------- Routines ---------- */
@@ -394,13 +400,26 @@ textarea.alert-input{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 const KEY = 'irontrack_v4';
 const CATS = ['Chest','Back','Shoulders','Legs','Arms','Core','Other'];
 const LB = 0.45359237;
+/* Default library for new users: [name, muscle group, rest seconds (omitted = app default)] */
 const DEFAULT_EX = [
-  ['Bench Press','Chest'],['Incline Dumbbell Press','Chest'],['Dumbbell Fly','Chest'],['Dips','Chest'],
-  ['Deadlift','Back'],['Barbell Row','Back'],['Pull-Up','Back'],['Lat Pulldown','Back'],['Seated Cable Row','Back'],
-  ['Overhead Press','Shoulders'],['Lateral Raise','Shoulders'],['Face Pull','Shoulders'],
-  ['Squat','Legs'],['Romanian Deadlift','Legs'],['Leg Press','Legs'],['Walking Lunge','Legs'],['Leg Curl','Legs'],['Calf Raise','Legs'],
-  ['Barbell Curl','Arms'],['Hammer Curl','Arms'],['Tricep Pushdown','Arms'],['Skull Crusher','Arms'],
-  ['Hanging Leg Raise','Core'],['Cable Crunch','Core'],['Ab Wheel Rollout','Core']
+  ['Bench Press','Chest',150],['Incline Bench Press','Chest',120],['Dumbbell Bench Press','Chest',120],['Incline Dumbbell Press','Chest',120],
+  ['Machine Chest Press','Chest'],['Cable Fly','Chest',60],['Dumbbell Fly','Chest',60],['Push-Up','Chest',60],['Dips','Chest'],
+  ['Deadlift','Back',180],['Barbell Row','Back',120],['Pull-Up','Back',120],['Chin-Up','Back',120],['Lat Pulldown','Back'],
+  ['Seated Cable Row','Back'],['Dumbbell Row','Back'],['T-Bar Row','Back',120],['Shrug','Back',60],
+  ['Overhead Press','Shoulders',120],['Dumbbell Shoulder Press','Shoulders'],['Arnold Press','Shoulders'],['Lateral Raise','Shoulders',60],
+  ['Rear Delt Fly','Shoulders',60],['Face Pull','Shoulders',60],['Upright Row','Shoulders',60],
+  ['Squat','Legs',180],['Front Squat','Legs',150],['Goblet Squat','Legs'],['Romanian Deadlift','Legs',120],['Leg Press','Legs',120],
+  ['Bulgarian Split Squat','Legs'],['Walking Lunge','Legs'],['Hip Thrust','Legs',120],['Leg Extension','Legs',60],['Leg Curl','Legs',60],['Calf Raise','Legs',60],
+  ['Barbell Curl','Arms',60],['Dumbbell Curl','Arms',60],['Hammer Curl','Arms',60],['Preacher Curl','Arms',60],
+  ['Tricep Pushdown','Arms',60],['Skull Crusher','Arms',60],['Overhead Tricep Extension','Arms',60],['Close-Grip Bench Press','Arms',120],
+  ['Hanging Leg Raise','Core',60],['Cable Crunch','Core',60],['Ab Wheel Rollout','Core',60],['Decline Sit-Up','Core',60],['Russian Twist','Core',60],
+  ['Kettlebell Swing','Other',60]
+];
+const STARTER_ROUTINES = [
+  { name:'Push Day', items:[['Bench Press',3],['Overhead Press',3],['Incline Dumbbell Press',3],['Lateral Raise',3],['Tricep Pushdown',3]] },
+  { name:'Pull Day', items:[['Deadlift',3],['Pull-Up',3],['Barbell Row',3],['Face Pull',3],['Barbell Curl',3]] },
+  { name:'Leg Day', items:[['Squat',3],['Romanian Deadlift',3],['Leg Press',3],['Leg Curl',3],['Calf Raise',3]] },
+  { name:'Full Body', items:[['Squat',3],['Bench Press',3],['Lat Pulldown',3],['Dumbbell Shoulder Press',3],['Hanging Leg Raise',3]] }
 ];
 const PLATE_COLORS = {
   kg:{25:'#ff453a',20:'#0a84ff',15:'#ffd60a',10:'#30d158',5:'#e5e5ea',2.5:'#48484a',1.25:'#aeaeb2',0.5:'#8e8e93'},
@@ -504,7 +523,29 @@ function defaultSettings(){
   return { unit:'kg', rest:90, autoRest:true, sound:true, vibrate:true, keepAwake:true,
     bar:{kg:20, lb:45}, plates:{kg:[25,20,15,10,5,2.5,1.25], lb:[45,35,25,10,5,2.5]}, lastBackup:null };
 }
-function defaultExercises(){ return DEFAULT_EX.map(([name,cat]) => ({id:uid(), name, cat})); }
+function defaultExercises(){ return DEFAULT_EX.map(([name, cat, rest]) => rest ? { id:uid(), name, cat, rest } : { id:uid(), name, cat }); }
+/* "Pull Ups" and "Pull-Up" count as the same exercise when matching by name. */
+const normName = n => String(n).toLowerCase().replace(/[^a-z0-9]/g, '').replace(/s$/, '');
+/* Adds any starter routines not already present (by name) to `exercises`/`routines`,
+   creating missing exercises from the default library. Returns how many were added. */
+function addStarterRoutines(exercises, routines){
+  let added = 0;
+  for(const t of STARTER_ROUTINES){
+    if(routines.some(r => r.name.toLowerCase() === t.name.toLowerCase())) continue;
+    const items = t.items.map(([name, sets]) => {
+      let ex = exercises.find(e => normName(e.name) === normName(name));
+      if(!ex){
+        const d = DEFAULT_EX.find(x => x[0] === name) || [name, 'Other'];
+        ex = { id:uid(), name:d[0], cat:d[1] }; if(d[2]) ex.rest = d[2];
+        exercises.push(ex);
+      }
+      return { exId:ex.id, sets };
+    });
+    routines.push({ id:uid(), name:t.name, items });
+    added++;
+  }
+  return added;
+}
 function freshState(){ return { v:4, settings:defaultSettings(), exercises:[], routines:[], sessions:[], active:null }; }
 
 function cleanSets(sets){
@@ -570,6 +611,7 @@ function load(){
     st.exercises = fromV3({ exercises: v3ex, history: [] }).exercises;
   } else {
     st.exercises = defaultExercises();
+    addStarterRoutines(st.exercises, st.routines);
   }
   return st;
 }
@@ -930,20 +972,28 @@ function renderWorkout(){
     <div class="topbar"><span></span><button class="btn-icon" data-a="plates" aria-label="Plate calculator">${ic('plates')}</button></div>
     <h1 class="large-title">Workout</h1>
     <div class="hero">
-      <div class="hero-k">${wk.count ? `${plural(wk.count,'workout')} this week` : 'Nothing logged this week yet'}</div>
+      <div class="hero-k">${wk.count ? `${plural(wk.count,'workout')} this week` : S.sessions.length ? 'Nothing logged this week yet' : 'Let’s get started'}</div>
       <div class="hero-t">Ready to train?</div>
       <button class="btn btn-block hero-btn" data-a="start-empty">${ic('plus')} Start Empty Workout</button>
     </div>
-    <div class="tiles three" style="margin-top:12px">
+    ${!S.sessions.length ? '' : `<div class="tiles three" style="margin-top:12px">
       ${tile('This week', wk.count, plural(wk.count,'workout').replace(/^\d+ /,''), 'data-a="tab" data-tab="progress"')}
       ${tile('Volume', fmtCompact(wk.volume) + `<small>${U()}</small>`, 'this week', 'data-a="tab" data-tab="progress"')}
       ${tile(`${ic('flame')}Streak`, st.cur + '<small>wk</small>', st.cur ? 'keep it going' : 'start today', 'data-a="tab" data-tab="progress"')}
-    </div>
+    </div>`}
     ${needBackup ? `<div class="nudge"><div class="ico">${ic('shield')}</div><div class="grow"><div class="t">Back up your workouts</div><div class="s">Last backup: ${lb ? relDay(lb).toLowerCase() : 'never'}</div></div><button class="btn btn-sm btn-tinted" data-a="export-file">Back Up</button><button class="btn-icon" style="background:none;color:var(--label-3)" data-a="nudge-x" aria-label="Dismiss">${ic('x')}</button></div>` : ''}
     ${installCard()}
-    ${!S.sessions.length ? `<div class="card" style="margin-top:12px"><div style="font-weight:600;margin-bottom:4px">Coming from the old app?</div><div class="small muted" style="line-height:1.45">In your old copy, go to <b>Settings → Copy backup code</b> (or <b>History / 🛠️ → Backup Data</b> in v3), then paste it here.</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-sm btn-tinted" style="flex:1" data-a="paste-code">${ic('paste')} Paste Code</button><button class="btn btn-sm btn-gray" style="flex:1" data-a="import-file">${ic('upload')} Import File</button></div></div>` : ''}
+    ${!S.sessions.length ? `<div class="card" style="margin-top:12px">
+      <div style="font-weight:700;font-size:20px">Welcome to IronTrack 👋</div>
+      <ol class="steps">
+        <li><span><b>Start</b> one of the routines below, or an empty workout and add exercises as you go.</span></li>
+        <li><span><b>Tick ✓</b> each set when you finish it — the rest timer starts by itself.</span></li>
+        <li><span><b>Finish</b> to save. Your PRs, charts and streaks build up as you train.</span></li>
+      </ol>
+      <div class="small muted">Moving from another phone? <button class="link-inline" data-a="paste-code">Paste a backup code</button> or <button class="link-inline" data-a="import-file">import a file</button>.</div>
+    </div>` : ''}
     <div class="section-h"><h2>Routines</h2><button class="link" data-a="new-routine">New</button></div>
-    ${routines ? `<div class="routines">${routines}</div>` : `<div class="card"><div style="font-weight:600;margin-bottom:4px">No routines yet</div><div class="small muted" style="line-height:1.45">Save workouts you repeat — like Push Day or Legs — and start them in one tap. Each set is pre-filled from last time.${S.sessions.length ? ' You can also open any workout in History and tap <b>Save as Routine</b>.' : ''}</div><button class="btn btn-block btn-tinted" style="margin-top:14px" data-a="new-routine">${ic('plus')} Create Routine</button></div>`}
+    ${routines ? `<div class="routines">${routines}</div>` : `<div class="card"><div style="font-weight:600;margin-bottom:4px">No routines yet</div><div class="small muted" style="line-height:1.45">Save workouts you repeat — like Push Day or Legs — and start them in one tap. Each set is pre-filled from last time.${S.sessions.length ? ' You can also open any workout in History and tap <b>Save as Routine</b>.' : ''}</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-sm btn-tinted" style="flex:1" data-a="add-starters">Add Starter Routines</button><button class="btn btn-sm btn-gray" style="flex:1" data-a="new-routine">${ic('plus')} Create Your Own</button></div></div>`}
   `;
 }
 
@@ -1751,17 +1801,20 @@ function renderSettings(){
       <button class="row tap has-ico" data-a="plates-edit">${sico('plates','#8e8e93')}<span class="grow">Available plates</span><span class="trail"><span>${st.plates[u].map(p => fmtNum(p)).join(', ')}</span>${chev()}</span></button>
       <button class="row tap has-ico" data-a="plates">${sico('plates','#0a84ff')}<span class="grow">Open plate calculator</span>${chev()}</button>
     </div>
+    <div class="group-h">Library</div>
+    <div class="list"><button class="row tap has-ico" data-a="add-starters">${sico('repeat','#bf5af2')}<span class="grow">Add starter routines</span>${chev()}</button></div>
+    <div class="caption">Push Day, Pull Day, Leg Day and Full Body. Adds any you don’t already have, plus the exercises they use. You can edit or delete them afterwards.</div>
     <div class="group-h">Backup & export</div>
     <div class="list">
       <button class="row tap has-ico" data-a="export-file">${sico('download','#30d158')}<span class="grow">Export backup file</span>${chev()}</button>
       <button class="row tap has-ico" data-a="copy-code">${sico('copy','#30d158')}<span class="grow">Copy backup code</span>${chev()}</button>
       <button class="row tap has-ico" data-a="import-file">${sico('upload','#0a84ff')}<span class="grow">Import backup file</span>${chev()}</button>
-      <button class="row tap has-ico" data-a="paste-code">${sico('paste','#0a84ff')}<span class="grow">Paste backup code</span><span class="trail small">incl. v3 codes</span>${chev()}</button>
+      <button class="row tap has-ico" data-a="paste-code">${sico('paste','#0a84ff')}<span class="grow">Paste backup code</span>${chev()}</button>
       <button class="row tap has-ico" data-a="export-csv">${sico('table','#5e5ce6')}<span class="grow">Export to spreadsheet (CSV)</span>${chev()}</button>
     </div>
     <div class="caption">Your workouts are saved in this browser on this device only. Last backup: <b>${st.lastBackup ? relDay(st.lastBackup).toLowerCase() : 'never'}</b>. Save a backup file to iCloud Drive regularly so nothing gets lost.</div>
     <div class="list" style="margin-top:24px"><button class="row tap red" data-a="erase"><span class="grow center">Erase All Data</span></button></div>
-    <div class="caption center" style="margin-top:24px">IronTrack 4.1 · ${plural(S.sessions.length,'workout')} · ${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
+    <div class="caption center" style="margin-top:24px">IronTrack 4.2 · ${plural(S.sessions.length,'workout')} · ${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
   v.onchange = e => {
     const k = e.target.dataset.set; if(!k) return;
     S.settings[k] = e.target.checked; save();
@@ -1874,7 +1927,7 @@ function exportCSV(){
 async function eraseAll(){
   if(!(await confirmDlg('Erase all data?', 'Every workout, exercise and routine will be deleted from this device. This can’t be undone — export a backup first if you might want it.', 'Erase Everything'))) return;
   const settings = S.settings;
-  S = freshState(); S.settings = settings; S.exercises = defaultExercises();
+  S = freshState(); S.settings = settings; S.exercises = defaultExercises(); addStarterRoutines(S.exercises, S.routines);
   rest.end = 0; rest.doneUntil = 0;
   save(); syncWakeLock(); refresh(); toast('All data erased');
 }
@@ -1973,7 +2026,12 @@ const ACT = {
   'export-csv': () => exportCSV(),
   erase: () => eraseAll(),
   'nudge-x': () => { ui.hideNudge = true; render(); },
-  'install-x': () => { prefSet('it_hide_install', '1'); render(); }
+  'install-x': () => { prefSet('it_hide_install', '1'); render(); },
+  'add-starters': () => {
+    const n = addStarterRoutines(S.exercises, S.routines);
+    if(!n){ toast('You already have all the starter routines'); return; }
+    save(); refresh(); toast(`Added ${plural(n, 'starter routine')}`);
+  }
 };
 $('#app').addEventListener('click', e => {
   const t = e.target.closest('[data-a]'); if(!t) return;
