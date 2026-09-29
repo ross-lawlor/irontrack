@@ -135,6 +135,9 @@ svg.i{width:22px;height:22px;flex:none}
 .hero-k{font-size:13px;font-weight:600;opacity:.85;text-transform:uppercase;letter-spacing:.5px;position:relative}
 .hero-t{font-size:26px;font-weight:700;margin:4px 0 16px;letter-spacing:.2px;position:relative}
 .hero-btn{background:#fff;color:#0a84ff;position:relative;z-index:1}
+.hero-btn2{margin-top:10px;height:44px;font-size:16px;background:rgba(255,255,255,.18);color:#fff;position:relative;z-index:1}
+.ed-dur{width:52px;text-align:center}
+.ed-hint{font-size:13px;color:var(--label-2);line-height:1.4;background:var(--fill-2);border-radius:10px;padding:10px 12px;margin:-4px 0 14px}
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .tiles.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 .tile{background:var(--card);border-radius:var(--r);padding:12px 14px;min-width:0}
@@ -1129,6 +1132,7 @@ function renderWorkout(){
       <div class="hero-k">${wk.count ? `${plural(wk.count,'workout')} this week` : S.sessions.length ? 'Nothing logged this week yet' : 'Let’s get started'}</div>
       <div class="hero-t">Ready to train?</div>
       <button class="btn btn-block hero-btn" data-a="start-empty">${ic('plus')} Start Empty Workout</button>
+      <button class="btn btn-block hero-btn2" data-a="log-past">${ic('check')} Log a Finished Workout</button>
     </div>
     ${!S.sessions.length ? '' : `<div class="tiles three" style="margin-top:12px">
       ${tile('This week', wk.count, plural(wk.count,'workout').replace(/^\d+ /,''), 'data-a="tab" data-tab="progress"')}
@@ -1141,7 +1145,7 @@ function renderWorkout(){
     ${!S.sessions.length ? `<div class="card" style="margin-top:12px">
       <div style="font-weight:700;font-size:20px">Welcome to IronTrack 👋</div>
       <ol class="steps">
-        <li><span><b>Start</b> one of the routines below, or an empty workout and add exercises as you go.</span></li>
+        <li><span><b>Start</b> one of the routines below, or an empty workout and add exercises as you go. Already trained? <b>Log a finished workout</b> instead.</span></li>
         <li><span><b>Tick ✓</b> each set when you finish it — the rest timer starts by itself.</span></li>
         <li><span><b>Finish</b> to save. Your PRs, charts and streaks build up as you train.</span></li>
       </ol>
@@ -1160,6 +1164,10 @@ function installCard(){
   return `<div class="nudge" style="align-items:flex-start"><div class="ico" style="background:var(--blue-soft);color:var(--blue)">${ic('phone')}</div><div class="grow"><div class="t">Install IronTrack</div><div class="s" style="line-height:1.45;margin-top:2px">${how} It opens full screen and works offline. Data saved in this browser tab isn’t shared with the installed app.</div></div><button class="btn-icon" style="background:none;color:var(--label-3)" data-a="install-x" aria-label="Dismiss">${ic('x')}</button></div>`;
 }
 
+/* One editor context for the live workout. Re-renders (e.g. after creating an
+   exercise from the picker) remount it into the new element, so callbacks that
+   captured it — like the picker's "Add" — always update what's on screen. */
+let activeCtx = null;
 function renderActive(v){
   v.innerHTML = `
     <div class="topbar">
@@ -1168,7 +1176,8 @@ function renderActive(v){
     </div>
     <div id="active-editor"></div>
     <button class="btn btn-block btn-danger" style="margin-top:20px" data-a="discard">Discard Workout</button>`;
-  mountEditor($('#active-editor'), { draft:S.active, mode:'active' });
+  if(!activeCtx || activeCtx.draft !== S.active) activeCtx = { draft:S.active, mode:'active' };
+  mountEditor($('#active-editor'), activeCtx);
 }
 
 async function startWorkout({ name, routineId=null, items=[] }){
@@ -1230,7 +1239,10 @@ function cleanEntries(entries, ignoreDone){
   return entries.map(en => {
     const ex = getEx(en.exId);
     return { exId:en.exId, name:ex.name, cat:ex.cat, sets: en.sets.filter(s => (ignoreDone || s.done) && (s.r > 0 || s.t > 0)).map(s => {
-      const o = { w: Math.max(0, s.w || 0), r: s.r || 0 }; if(s.t > 0) o.t = s.t; return o;
+      const o = { w: Math.max(0, s.w || 0), r: s.r || 0 };
+      const t = s.t > 0 ? s.t : (en.mode === 'timed' && en.iv ? en.iv.work : 0);
+      if(t > 0) o.t = t;
+      return o;
     }) };
   }).filter(e => e.sets.length);
 }
@@ -1295,10 +1307,11 @@ function renderEditor(ctx){
   const d = ctx.draft;
   const meta = ctx.mode === 'active'
     ? `<span>${ic('clock')}<b data-elapsed="${esc(d.start)}">${fmtDur(Date.now() - new Date(d.start))}</b></span>`
-    : `<span>${ic('calendar')}<input type="datetime-local" class="ed-dt" data-f="start" value="${toLocalInput(d.start)}"></span>`;
+    : `<span>${ic('calendar')}<input type="datetime-local" class="ed-dt" data-f="start" value="${toLocalInput(d.start)}" aria-label="Start time"></span><span>${ic('clock')}<input class="ed-dt ed-dur" data-f="dur" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${d.durMin || ''}" placeholder="–" aria-label="Duration in minutes"> min</span>`;
   ctx.root.innerHTML = `
     <input class="ed-name" data-f="name" value="${esc(d.name)}" placeholder="Workout name" enterkeyhint="done" autocomplete="off">
     <div class="ed-meta">${meta}<span>${ic('check')}<b class="m-sets">0</b><span class="m-sets-l">sets</span></span><span>${ic('stack')}<b class="m-vol">0</b> ${U()}</span></div>
+    ${ctx.hint ? `<div class="ed-hint">${ctx.hint}</div>` : ''}
     ${d.entries.map((en, i) => entryHTML(ctx, en, i)).join('') || `<div class="ed-empty">${ic('dumbbell')}<div>Add an exercise to get started</div></div>`}
     <button class="btn btn-block btn-tinted" data-ed="add-ex">${ic('plus')} Add Exercises</button>
     <textarea class="field ed-notes" data-f="notes" rows="2" placeholder="Workout notes (optional)">${esc(d.notes || '')}</textarea>`;
@@ -1394,6 +1407,7 @@ function edInput(ctx, e){
   if(f === 'name') d.name = t.value;
   else if(f === 'notes') d.notes = t.value;
   else if(f === 'start'){ const dt = new Date(t.value); if(!isNaN(dt)) d.start = dt.toISOString(); }
+  else if(f === 'dur'){ const n = parseInt(t.value, 10); d.durMin = n > 0 ? Math.min(600, n) : null; }
   else {
     const row = t.closest('.set-row'), ei = +t.closest('.ex-card').dataset.ei, si = +row.dataset.si;
     const en = d.entries[ei], s = en.sets[si], raw = t.value.trim();
@@ -1489,15 +1503,30 @@ function toggleSet(ctx, ei, si, row){
 async function exMenu(ctx, ei){
   const en = ctx.draft.entries[ei], ex = getEx(en.exId), n = ctx.draft.entries.length;
   const actions = [];
+  if(ctx.mode === 'edit'){
+    if(lastPerf(en.exId, ctx.draft)) actions.push({ k:'fill', label:'Fill Sets from Last Time' });
+    const s0 = en.sets[0];
+    if(en.sets.length > 1 && s0 && (s0.r > 0 || s0.t > 0 || s0.w > 0)) actions.push({ k:'copy1', label:'Copy Set 1 to All Sets' });
+  }
   if(!ex.deleted) actions.push({ k:'mode', label: en.mode === 'timed' ? 'Switch to Reps & Weight' : 'Switch to Timed Sets' });
-  if(!ex.deleted && en.mode !== 'timed') actions.push({ k:'rest', label:`Rest Timer (${fmtClock(restFor(en.exId))})` });
+  if(!ex.deleted && en.mode !== 'timed' && ctx.mode === 'active') actions.push({ k:'rest', label:`Rest Timer (${fmtClock(restFor(en.exId))})` });
   if(ei > 0) actions.push({ k:'up', label:'Move Up' });
   if(ei < n-1) actions.push({ k:'down', label:'Move Down' });
   actions.push({ k:'info', label:'History & Charts' });
   actions.push({ k:'remove', label:'Remove Exercise', red:true });
   const k = await actionSheet({ title:ex.name, actions });
   const list = ctx.draft.entries;
-  if(k === 'mode'){
+  if(k === 'fill'){
+    const prev = lastPerf(en.exId, ctx.draft) || [];
+    en.sets = prev.map(p => ({ w:p.w, r:p.r || null, t:p.t || null, done:true }));
+    changed(ctx, true);
+  }
+  else if(k === 'copy1'){
+    const s0 = en.sets[0];
+    en.sets = en.sets.map((x, i) => i === 0 ? x : { ...x, w:s0.w, r:s0.r, t:s0.t });
+    changed(ctx, true);
+  }
+  else if(k === 'mode'){
     const toTimed = en.mode !== 'timed', keep = en.sets.filter(s => s.done);
     if(toTimed){ ex.mode = 'timed'; ex.iv = exIv(ex); en.mode = 'timed'; en.iv = { work:ex.iv.work, rest:ex.iv.rest }; }
     else { delete ex.mode; delete en.mode; delete en.iv; }
@@ -1641,37 +1670,49 @@ function ivClose(){
 }
 
 /* ---------- Edit / log past workouts ---------- */
-function openSessionEditor(sessId){
+/* Log a workout after the fact (e.g. after a class), or edit a saved one.
+   Every set with values is saved as completed — no ticking, timers or rest. */
+function openSessionEditor(sessId, { routineId } = {}){
   const orig = sessId ? S.sessions.find(x => x.id === sessId) : null;
-  const now = new Date(); now.setSeconds(0, 0);
+  const origDur = orig && sessDur(orig);
+  const start = new Date(Date.now() - 45*60000); start.setSeconds(0, 0); start.setMinutes(Math.floor(start.getMinutes() / 5) * 5);
+  const routine = !orig && routineId ? S.routines.find(x => x.id === routineId) : null;
   const draft = orig
-    ? { id:orig.id, name:orig.name, start:orig.start, notes:orig.notes || '', routineId:orig.routineId, entries: orig.entries.map(e => {
+    ? { id:orig.id, name:orig.name, start:orig.start, durMin: origDur ? Math.round(origDur / 60000) : null, notes:orig.notes || '', routineId:orig.routineId, entries: orig.entries.map(e => {
         const o = { exId:e.exId, name:e.name, cat:e.cat, sets:e.sets.map(s => ({ w:s.w, r:s.r, t:s.t || null, done:true })) };
         const ts = e.sets.find(s => s.t); if(ts){ o.mode = 'timed'; o.iv = { work:ts.t, rest:exIv(getEx(e.exId)).rest }; }
         return o;
       }) }
-    : { id:uid(), name:'Workout', start:now.toISOString(), notes:'', routineId:null, entries:[] };
-  const ctx = { draft, mode:'edit' };
+    : { id:uid(), name: routine ? routine.name : defaultName(start), start:start.toISOString(), durMin:45, notes:'', routineId: routine ? routine.id : null, entries:[] };
+  if(routine) draft.entries = routine.items.filter(i => i.exId).map(i => newEntry(i.exId, draft, i.sets));
+  const ctx = { draft, mode:'edit', hint: orig ? '' : `Set when you trained and for how long, then add what you did. Every set you fill in is saved as completed. Tap a <b>Previous</b> value to copy it, or use an exercise’s ⋯ menu to fill all its sets from last time.` };
   const sh = openSheet({ full:true, modal:true,
-    render: () => `${sheetHead(btnClose('Cancel'), orig ? 'Edit Workout' : 'Log Past Workout', `<button class="text-btn bold" data-a="save">Save</button>`)}<div class="sheet-body"><div class="ed-host"></div>${orig ? `<button class="btn btn-block btn-danger" style="margin-top:20px" data-a="del">Delete Workout</button>` : ''}</div>`,
+    render: () => `${sheetHead(btnClose('Cancel'), orig ? 'Edit Workout' : 'Log Finished Workout', `<button class="text-btn bold" data-a="save">Save</button>`)}<div class="sheet-body"><div class="ed-host"></div>${orig ? `<button class="btn btn-block btn-danger" style="margin-top:20px" data-a="del">Delete Workout</button>` : ''}</div>`,
     mount: s => mountEditor(s.el.querySelector('.ed-host'), ctx),
     actions: {
       save: () => {
         const entries = cleanEntries(draft.entries, true);
         if(!entries.length){ toast('Add at least one set with reps or time'); return; }
         const name = (draft.name || '').trim() || 'Workout';
+        const end = draft.durMin > 0 ? new Date(new Date(draft.start).getTime() + draft.durMin*60000).toISOString() : null;
+        if(new Date(draft.start) > new Date(Date.now() + 5*60000)){ toast('The start time is in the future'); return; }
         if(orig){
-          const delta = new Date(draft.start) - new Date(orig.start);
-          if(orig.end) orig.end = new Date(new Date(orig.end).getTime() + delta).toISOString();
-          Object.assign(orig, { name, start:draft.start, notes:(draft.notes||'').trim(), entries });
+          Object.assign(orig, { name, start:draft.start, end, legacy: end ? false : orig.legacy, notes:(draft.notes||'').trim(), entries });
+          save(); sh.close(); refresh(); toast('Workout saved');
         } else {
-          S.sessions.push({ id:draft.id, name, start:draft.start, end:null, legacy:false, routineId:null, notes:(draft.notes||'').trim(), entries });
+          const sess = { id:draft.id, name, start:draft.start, end, legacy:false, routineId:draft.routineId || null, notes:(draft.notes||'').trim(), entries };
+          S.sessions.push(sess);
+          save(); sh.close(); refresh(); showSummary(sess);
         }
-        save(); sh.close(); refresh(); toast('Workout saved');
       },
       del: () => deleteSession(orig.id, sh)
     }
   });
+}
+async function logFinished(){
+  if(!S.routines.length) return openSessionEditor(null);
+  const k = await actionSheet({ title:'Log a finished workout', actions:[{ k:'__empty', label:'Empty Workout', bold:true }, ...S.routines.map(r => ({ k:r.id, label:r.name }))] });
+  if(k) openSessionEditor(null, k === '__empty' ? {} : { routineId:k });
 }
 async function deleteSession(id, sheet){
   if(!(await confirmDlg('Delete this workout?', 'It will be permanently removed from your history and stats.'))) return;
@@ -1946,8 +1987,9 @@ function openRoutineEditor(rid){
 }
 async function routineMenu(id){
   const r = S.routines.find(x => x.id === id); if(!r) return;
-  const k = await actionSheet({ title:r.name, actions:[{ k:'start', label:'Start Workout', bold:true }, { k:'edit', label:'Edit Routine' }, { k:'dup', label:'Duplicate' }, { k:'del', label:'Delete Routine', red:true }] });
+  const k = await actionSheet({ title:r.name, actions:[{ k:'start', label:'Start Workout', bold:true }, { k:'log', label:'Log as Finished Workout' }, { k:'edit', label:'Edit Routine' }, { k:'dup', label:'Duplicate' }, { k:'del', label:'Delete Routine', red:true }] });
   if(k === 'start') startRoutine(id);
+  else if(k === 'log') openSessionEditor(null, { routineId:id });
   else if(k === 'edit') openRoutineEditor(id);
   else if(k === 'dup'){ S.routines.splice(S.routines.indexOf(r)+1, 0, { id:uid(), name:r.name + ' (copy)', items:r.items.map(i => ({ ...i })) }); save(); refresh(); }
   else if(k === 'del'){
@@ -1971,8 +2013,8 @@ function sessCard(s, prs){
 function renderHistory(){
   const v = $('#v-history');
   const list = S.sessions.slice().sort((a,b) => new Date(b.start) - new Date(a.start));
-  let html = `<div class="topbar"><span></span><button class="btn-icon" data-a="log-past" aria-label="Log a past workout">${ic('plus')}</button></div><h1 class="large-title">History</h1>`;
-  if(!list.length){ v.innerHTML = html + emptyHTML('clock', 'No workouts yet', 'Finished workouts show up here. Use + to log one you did earlier.'); return; }
+  let html = `<div class="topbar"><span></span><button class="btn-icon" data-a="log-past" aria-label="Log a finished workout">${ic('plus')}</button></div><h1 class="large-title">History</h1>`;
+  if(!list.length){ v.innerHTML = html + emptyHTML('clock', 'No workouts yet', 'Finished workouts show up here. Use + to log one you’ve already done.'); return; }
   const monthKey = d => d.toLocaleDateString(undefined, { month:'long', year:'numeric' });
   const counts = {}; list.forEach(s => { const k = monthKey(new Date(s.start)); counts[k] = (counts[k] || 0) + 1; });
   const prs = cache().prs; let cur = '';
@@ -2396,7 +2438,7 @@ function renderSettings(){
     </div>
     <div class="caption">Your workouts and measurements are saved in this browser on this device only. Last backup: <b>${st.lastBackup ? relDay(st.lastBackup).toLowerCase() : 'never'}</b>. Save a backup file to iCloud Drive regularly so nothing gets lost.</div>
     <div class="list" style="margin-top:24px"><button class="row tap red" data-a="erase"><span class="grow center">Erase All Data</span></button></div>
-    <div class="caption center" style="margin-top:24px">IronTrack 4.3 · ${plural(S.sessions.length,'workout')} · ${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
+    <div class="caption center" style="margin-top:24px">IronTrack 4.4 · ${plural(S.sessions.length,'workout')} · ${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
   v.onchange = e => {
     const k = e.target.dataset.set; if(!k) return;
     S.settings[k] = e.target.checked; save();
@@ -2599,7 +2641,7 @@ const ACT = {
   'rest-adj': t => adjustRest(+t.dataset.d),
   'rest-skip': () => stopRest(),
   sess: t => openSession(t.dataset.id),
-  'log-past': () => openSessionEditor(null),
+  'log-past': () => logFinished(),
   'hist-more': () => { ui.histLimit += 40; render(); },
   cal: t => { const m = ui.calMonth; ui.calMonth = new Date(m.getFullYear(), m.getMonth() + (+t.dataset.d), 1); $('#cal-wrap').innerHTML = calendarHTML(); },
   'cal-day': async t => {
