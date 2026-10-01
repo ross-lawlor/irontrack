@@ -561,9 +561,10 @@ const fmtW = kg => fmtNum(toDisp(kg), U()==='lb' ? 1 : 2);
 const fmtW1 = kg => fmtNum(toDisp(kg), 1);
 const fmtVol = kg => Math.round(toDisp(kg)).toLocaleString();
 function fmtCompact(kg){ const v = toDisp(kg); return v >= 10000 ? fmtNum(v/1000, v>=100000?0:1)+'k' : Math.round(v).toLocaleString(); }
-const setStr = s => s.t
+// Weight first, then reps (matches the KG | REPS input order). unit=false drops the unit for the narrow Previous column.
+const setStr = (s, unit = true) => s.t
   ? `${s.t}s${s.r ? ' × ' + s.r : ''}${s.w > 0 ? ' @ ' + fmtW(s.w) + ' ' + U() : ''}`
-  : (s.w>0 ? fmtW(s.w) : 'BW') + ' × ' + s.r;
+  : (s.w>0 ? fmtW(s.w) + (unit ? ' ' + U() : '') : 'BW') + ' × ' + s.r;
 const fmtSecs = sec => sec < 60 ? sec + 's' : fmtClock(sec);
 const LU = () => S.settings.lenUnit;
 const metricUnit = m => m.kind === 'mass' ? U() : m.kind === 'len' ? LU() : '%';
@@ -1347,7 +1348,7 @@ function setHTML(ctx, en, s, j, prev, best){
   const pr = ctx.mode === 'active' && s.done && isPR(s, best);
   return `<div class="set-grid set-row${s.done ? ' done' : ''}${pr ? ' pr' : ''}" data-si="${j}">
     <button class="set-num" data-ed="set-menu" aria-label="Set ${j+1} options">${pr ? ic('trophy') : j+1}</button>
-    <button class="set-prev" data-ed="use-prev" ${p ? '' : 'disabled'}>${p ? setStr(p) : '—'}</button>
+    <button class="set-prev" data-ed="use-prev" ${p ? '' : 'disabled'}>${p ? setStr(p, false) : '—'}</button>
     <input class="set-in" data-f="w" inputmode="decimal" autocomplete="off" value="${s.w != null ? fmtW(s.w) : ''}" placeholder="${ph ? (ph.w > 0 ? fmtW(ph.w) : '0') : ''}" aria-label="Weight">
     <input class="set-in" data-f="r" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${s.r != null ? s.r : ''}" placeholder="${ph ? ph.r : ''}" aria-label="Reps">
     <button class="set-check" data-ed="check" aria-label="Complete set">${ic('check')}</button>
@@ -1868,7 +1869,7 @@ function openExerciseDetail(id){
             <div class="small faint" style="margin-top:6px">Each point is one workout. Tap or drag to inspect.</div>
           </div>
           <div class="group-h">Recent workouts</div>
-          <div class="list">${ser.slice(-15).reverse().map(p => `<button class="row tap" data-a="sess" data-id="${esc(p.id)}"><div class="grow"><div class="title" style="font-size:15px;font-weight:600">${new Date(p.start).toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short', year:'numeric' })}</div><div class="sub wrap num">${p.sets.map(setStr).join(' · ')}</div></div>${chev()}</button>`).join('')}</div>`;
+          <div class="list">${ser.slice(-15).reverse().map(p => `<button class="row tap" data-a="sess" data-id="${esc(p.id)}"><div class="grow"><div class="title" style="font-size:15px;font-weight:600">${new Date(p.start).toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short', year:'numeric' })}</div><div class="sub wrap num">${p.sets.map(x => setStr(x)).join(' · ')}</div></div>${chev()}</button>`).join('')}</div>`;
       }
       return `${sheetHead(btnClose(), '', ex.deleted ? '' : `<button class="text-btn" data-a="edit">Edit</button>`)}
         <div class="sheet-body">
@@ -1916,7 +1917,7 @@ function openSession(id){
           ${prs.length ? `<div class="card" style="padding:10px 14px;margin-bottom:12px">${prs.map(p => { const t = prText(p); return `<div class="pr-line">${ic('trophy')}<span class="grow"><b>${esc(getEx(p.exId).name)}</b> <span class="muted small">${esc(t.label)}</span></span><span class="num" style="color:var(--orange);font-weight:600">${esc(t.text)}</span></div>`; }).join('')}</div>` : ''}
           ${sess.entries.map(e => `<div class="card det-ex">
             <div class="det-ex-h"><button class="link-name" data-a="ex" data-id="${esc(e.exId)}">${esc(getEx(e.exId).name)}</button><span class="tag">${esc(e.cat)}</span></div>
-            ${e.sets.map((x, i) => `<div class="det-set"><span class="n">${i+1}</span><span>${setStr(x)}${x.w > 0 && !x.t ? ' ' + U() : ''}</span><span class="faint small">${x.w > 0 && !x.t ? 'e1RM ' + fmtW1(e1rm(x.w, x.r)) : ''}</span></div>`).join('')}
+            ${e.sets.map((x, i) => `<div class="det-set"><span class="n">${i+1}</span><span>${setStr(x)}</span><span class="faint small">${x.w > 0 && !x.t ? 'e1RM ' + fmtW1(e1rm(x.w, x.r)) : ''}</span></div>`).join('')}
           </div>`).join('')}
           ${sess.notes ? `<div class="card"><div class="small muted" style="margin-bottom:4px">Notes</div><div style="white-space:pre-wrap;font-size:15px;line-height:1.45">${esc(sess.notes)}</div></div>` : ''}
           <div class="btn-col">
@@ -2438,7 +2439,7 @@ function renderSettings(){
     </div>
     <div class="caption">Your workouts and measurements are saved in this browser on this device only. Last backup: <b>${st.lastBackup ? relDay(st.lastBackup).toLowerCase() : 'never'}</b>. Save a backup file to iCloud Drive regularly so nothing gets lost.</div>
     <div class="list" style="margin-top:24px"><button class="row tap red" data-a="erase"><span class="grow center">Erase All Data</span></button></div>
-    <div class="caption center" style="margin-top:24px">IronTrack 4.4 · ${plural(S.sessions.length,'workout')} · ${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
+    <div class="caption center" style="margin-top:24px">IronTrack 4.4.1 · ${plural(S.sessions.length,'workout')} · ${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
   v.onchange = e => {
     const k = e.target.dataset.set; if(!k) return;
     S.settings[k] = e.target.checked; save();
