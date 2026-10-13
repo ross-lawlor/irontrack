@@ -358,6 +358,47 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}
 .spark{flex:none}
 .body-in{width:86px;height:36px;border:0;border-radius:8px;background:var(--card-3);text-align:right;padding:0 10px;font-size:17px;font-weight:600;outline:none;-webkit-appearance:none;appearance:none;flex:none}
 .body-in:focus{box-shadow:0 0 0 1.5px var(--blue) inset}
+
+/* ---------- Cardio ---------- */
+.cico{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--c);background:var(--cs)}
+.cico svg{width:18px;height:18px}
+.cico.lg{width:46px;height:46px;border-radius:13px}
+.cico.lg svg{width:28px;height:28px}
+.c-name{display:flex;align-items:center;gap:9px;min-width:0}
+.c-name > span:last-child{overflow:hidden;text-overflow:ellipsis}
+.c-stats{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;font-size:14px;color:var(--label-2)}
+.c-stats b{font-size:20px;font-weight:700;color:var(--label);margin-right:3px;letter-spacing:-.2px}
+.c-chips{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:9px}
+.c-chips > span{display:inline-flex;align-items:center;gap:4px}
+.c-chips svg{width:14px;height:14px}
+.c-notes{font-size:14px;color:var(--label-2);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eff{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;color:var(--c);background:var(--cs);white-space:nowrap}
+.lv{display:inline-flex;align-items:flex-end;gap:1.5px;height:10px}
+.lv i{width:3px;border-radius:1px;background:currentColor;opacity:.3}
+.lv i:nth-child(1){height:4px}.lv i:nth-child(2){height:6px}.lv i:nth-child(3){height:8px}.lv i:nth-child(4){height:10px}
+.lv i.on{opacity:1}
+.c-head{display:flex;align-items:center;gap:12px;margin:2px 0 16px}
+.c-types button{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 4px}
+.c-types svg{width:16px;height:16px}
+.c-in{width:46px;height:36px;border:0;border-radius:8px;background:var(--card-3);text-align:center;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;outline:none;-webkit-appearance:none;appearance:none;flex:none;padding:0 4px}
+.c-in.w{width:86px;text-align:right;padding:0 10px}
+.c-in:focus{box-shadow:0 0 0 1.5px var(--blue) inset}
+.c-in.auto{color:var(--green)}
+.c-in::placeholder{color:var(--label-3);font-weight:500;font-size:15px}
+.c-hms{display:inline-flex;align-items:center;gap:3px;flex:none}
+.c-sep{color:var(--label-3);font-weight:700}
+.eff-pick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.eff-pick button{height:52px;border-radius:12px;background:var(--card-2);font-size:14px;font-weight:600;color:var(--label-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1.5px solid transparent;text-align:center}
+.eff-pick button.on{background:var(--cs);color:var(--c);border-color:var(--c)}
+.c-disc{display:inline-flex;transition:transform .2s}
+.c-disc.open{transform:rotate(90deg)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--label-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i,.chart .tip .tp i{display:inline-block;width:10px;height:10px;border-radius:3px}
+.chart .tip .tp{display:flex;align-items:center;gap:6px;margin-top:2px}
+.rec-ico{display:flex;color:var(--orange)}
+.rec-ico.muted{color:var(--label-3)}
+.rec-ico svg{width:20px;height:20px}
 .body-in::placeholder{color:var(--label-3);font-weight:500}
 .body-unit{width:30px;color:var(--label-2);font-size:15px;flex:none}
 input[type=date].field{display:block;line-height:44px;min-height:44px}
@@ -541,7 +582,14 @@ const ICONS = {
   bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16z"/><path d="M10 21h4"/>',
   pause:'<path d="M8 5v14M16 5v14"/>',
   skip:'<path d="M5 5l10 7-10 7V5zM19 5v14"/>',
-  repeat:'<path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>'
+  repeat:'<path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>',
+  run:'<circle cx="15" cy="4.5" r="2"/><path d="M13.5 8.5L11 13l3.5 3-1 5M11 13l-2.5 3H5M8 10.5L10.5 8h3.5l2 3.5 3 .5"/>',
+  walk:'<circle cx="13" cy="4.5" r="2"/><path d="M12.5 8.5l-1 6M9 12.5l3-4 2.5 3.5M11.5 14.5l2.5 3 .5 3.5M11.5 14.5l-2 3.5L8 21"/>',
+  hike:'<path d="M3 20l6.5-11 4 6.5 2.5-3.5L21 20H3z"/><path d="M7.6 12.3l1.9 1.5 1.7-1.5"/>',
+  bike:'<circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5H12L9 9.5zM9 9.5h6.5L12 16.5M15.5 9.5l3 7M15.5 9.5l-1-3.5H17M9 9.5V8M7.5 8h3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  home:'<path d="M4 11l8-6.5 8 6.5M6 9.5V20h12V9.5"/>',
+  gauge:'<path d="M4.5 17.5a8.5 8.5 0 1 1 15 0"/><path d="M12 14.5l3.5-4"/>'
 };
 const ic = (n, cls='i') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
 const chev = () => ic('chevR','chev');
@@ -617,7 +665,7 @@ let migratedCount = 0;
 function defaultSettings(){
   return { unit:'kg', rest:90, autoRest:true, sound:true, vibrate:true, keepAwake:true,
     bar:{kg:20, lb:45}, plates:{kg:[25,20,15,10,5,2.5,1.25], lb:[45,35,25,10,5,2.5]}, lastBackup:null,
-    lenUnit:'cm', bodyRemind:'monthly' };
+    lenUnit:'cm', bodyRemind:'monthly', distUnit:null };
 }
 function exFromDefault([name, cat, rest, iv]){
   const o = { id:uid(), name, cat };
@@ -649,7 +697,7 @@ function addStarterRoutines(exercises, routines){
   }
   return added;
 }
-function freshState(){ return { v:4, settings:defaultSettings(), exercises:[], routines:[], sessions:[], active:null, body:normBody(null) }; }
+function freshState(){ return { v:4, settings:defaultSettings(), exercises:[], routines:[], sessions:[], active:null, body:normBody(null), cardio:[] }; }
 function normBody(b){
   b = b || {};
   const keys = BODY_METRICS.map(m => m.k);
@@ -678,6 +726,7 @@ function normalize(d){
   if(!['kg','lb'].includes(st.settings.unit)) st.settings.unit = 'kg';
   if(!['cm','in'].includes(st.settings.lenUnit)) st.settings.lenUnit = 'cm';
   if(!REMIND_LABEL[st.settings.bodyRemind]) st.settings.bodyRemind = 'monthly';
+  if(!['km','mi'].includes(st.settings.distUnit)) st.settings.distUnit = null;
   st.exercises = (d.exercises||[]).filter(e => e && e.id != null && e.name).map(e => {
     const o = { id:String(e.id), name:String(e.name), cat: CATS.includes(e.cat) ? e.cat : 'Other' };
     if(+e.rest > 0) o.rest = +e.rest;
@@ -695,6 +744,7 @@ function normalize(d){
   })).filter(x => x.entries.length);
   st.active = (d.active && Array.isArray(d.active.entries)) ? d.active : null;
   st.body = normBody(d.body);
+  st.cardio = normCardio(d.cardio);
   return st;
 }
 
@@ -856,11 +906,12 @@ function volOrWorkTile(s){ const v = sessVolume(s), t = sessWork(s); return !v &
 function sessSets(s){ return s.entries.reduce((a,e) => a + e.sets.length, 0); }
 function weekStats(offset=0){
   const ws = addDays(startOfWeek(new Date()), -7*offset), we = addDays(ws, 7);
-  const list = S.sessions.filter(s => { const d = new Date(s.start); return d >= ws && d < we; });
-  return { count:list.length, volume:list.reduce((a,s) => a + sessVolume(s), 0) };
+  const inWk = x => { const d = new Date(x.start); return d >= ws && d < we; };
+  const list = S.sessions.filter(inWk);
+  return { count:list.length, volume:list.reduce((a,s) => a + sessVolume(s), 0), cardio:S.cardio.filter(inWk).length };
 }
 function streaks(){
-  const weeks = new Set(S.sessions.map(s => +startOfWeek(new Date(s.start))));
+  const weeks = new Set([...S.sessions, ...S.cardio].map(s => +startOfWeek(new Date(s.start))));
   let cur = 0, w = startOfWeek(new Date());
   if(!weeks.has(+w)) w = addDays(w, -7);
   while(weeks.has(+w)){ cur++; w = addDays(w, -7); }
@@ -1092,7 +1143,7 @@ function tick(){
 /* =========================================================
    Navigation
    ========================================================= */
-const ui = { tab:'', scroll:{}, exQ:'', exCat:'All', histLimit:40, calMonth:null, exMetric:'e1', hideNudge:false, progView:'training' };
+const ui = { tab:'', scroll:{}, exQ:'', exCat:'All', histLimit:40, calMonth:null, exMetric:'e1', hideNudge:false, progView:'training', cardioType:'all' };
 const TABS = [['workout','dumbbell','Workout'],['history','clock','History'],['progress','chart','Progress'],['exercises','list','Exercises'],['settings','gear','Settings']];
 function setTab(tab){
   if(tab === ui.tab){ window.scrollTo({ top:0, behavior:'smooth' }); return; }
@@ -1114,7 +1165,7 @@ function render(){
 function renderWorkout(){
   const v = $('#v-workout');
   if(S.active){ renderActive(v); return; }
-  const wk = weekStats(), st = streaks();
+  const wk = weekStats(), st = streaks(), acts = wk.count + wk.cardio, anyAct = S.sessions.length + S.cardio.length;
   const routines = S.routines.map(r => {
     const last = S.sessions.filter(s => s.routineId === r.id).reduce((m, s) => s.start > m ? s.start : m, '');
     const names = r.items.map(i => getEx(i.exId).name);
@@ -1125,28 +1176,30 @@ function renderWorkout(){
       <button class="btn btn-sm btn-primary" data-a="start-routine" data-id="${r.id}">${ic('play')} Start</button></div></div>`;
   }).join('');
   const lb = S.settings.lastBackup;
-  const needBackup = !ui.hideNudge && S.sessions.length >= 3 && (!lb || Date.now() - new Date(lb) > 14*864e5);
+  const needBackup = !ui.hideNudge && anyAct >= 3 && (!lb || Date.now() - new Date(lb) > 14*864e5);
   v.innerHTML = `
     <div class="topbar"><span></span><button class="btn-icon" data-a="plates" aria-label="Plate calculator">${ic('plates')}</button></div>
     <h1 class="large-title">Workout</h1>
     <div class="hero">
-      <div class="hero-k">${wk.count ? `${plural(wk.count,'workout')} this week` : S.sessions.length ? 'Nothing logged this week yet' : 'Let’s get started'}</div>
+      <div class="hero-k">${acts ? `${S.cardio.length ? actWord(acts) : plural(acts,'workout')} this week` : anyAct ? 'Nothing logged this week yet' : 'Let’s get started'}</div>
       <div class="hero-t">Ready to train?</div>
       <button class="btn btn-block hero-btn" data-a="start-empty">${ic('plus')} Start Empty Workout</button>
       <button class="btn btn-block hero-btn2" data-a="log-past">${ic('check')} Log a Finished Workout</button>
+      <button class="btn btn-block hero-btn2" data-a="log-cardio">${ic('run')} Log Cardio</button>
     </div>
-    ${!S.sessions.length ? '' : `<div class="tiles three" style="margin-top:12px">
-      ${tile('This week', wk.count, plural(wk.count,'workout').replace(/^\d+ /,''), 'data-a="tab" data-tab="progress"')}
-      ${tile('Volume', fmtCompact(wk.volume) + `<small>${U()}</small>`, 'this week', 'data-a="tab" data-tab="progress"')}
+    ${!anyAct ? '' : `<div class="tiles three" style="margin-top:12px">
+      ${tile('This week', acts, (S.cardio.length ? actWord(acts) : plural(acts,'workout')).replace(/^\d+ /,''), 'data-a="tab" data-tab="progress"')}
+      ${!S.sessions.length ? tile('Distance', fmtNum(toDist(sumDist(S.cardio.filter(x => new Date(x.start) >= startOfWeek(new Date())))), 1) + `<small>${DU()}</small>`, 'this week', 'data-a="cardio-progress"')
+        : tile('Volume', fmtCompact(wk.volume) + `<small>${U()}</small>`, 'this week', 'data-a="tab" data-tab="progress"')}
       ${tile(`${ic('flame')}Streak`, st.cur + '<small>wk</small>', st.cur ? 'keep it going' : 'start today', 'data-a="tab" data-tab="progress"')}
     </div>`}
     ${needBackup ? `<div class="nudge"><div class="ico">${ic('shield')}</div><div class="grow"><div class="t">Back up your workouts</div><div class="s">Last backup: ${lb ? relDay(lb).toLowerCase() : 'never'}</div></div><button class="btn btn-sm btn-tinted" data-a="export-file">Back Up</button><button class="btn-icon" style="background:none;color:var(--label-3)" data-a="nudge-x" aria-label="Dismiss">${ic('x')}</button></div>` : ''}
     ${bodyNudge()}
     ${installCard()}
-    ${!S.sessions.length ? `<div class="card" style="margin-top:12px">
+    ${!anyAct ? `<div class="card" style="margin-top:12px">
       <div style="font-weight:700;font-size:20px">Welcome to IronTrack 👋</div>
       <ol class="steps">
-        <li><span><b>Start</b> one of the routines below, or an empty workout and add exercises as you go. Already trained? <b>Log a finished workout</b> instead.</span></li>
+        <li><span><b>Start</b> one of the routines below, or an empty workout and add exercises as you go. Already trained? <b>Log a finished workout</b> instead. Went for a run, walk, hike or ride? <b>Log Cardio</b>.</span></li>
         <li><span><b>Tick ✓</b> each set when you finish it — the rest timer starts by itself.</span></li>
         <li><span><b>Finish</b> to save. Your PRs, charts and streaks build up as you train.</span></li>
       </ol>
@@ -2013,18 +2066,19 @@ function sessCard(s, prs){
 }
 function renderHistory(){
   const v = $('#v-history');
-  const list = S.sessions.slice().sort((a,b) => new Date(b.start) - new Date(a.start));
-  let html = `<div class="topbar"><span></span><button class="btn-icon" data-a="log-past" aria-label="Log a finished workout">${ic('plus')}</button></div><h1 class="large-title">History</h1>`;
-  if(!list.length){ v.innerHTML = html + emptyHTML('clock', 'No workouts yet', 'Finished workouts show up here. Use + to log one you’ve already done.'); return; }
+  const list = [...S.sessions.map(x => ({ x, c:false })), ...S.cardio.map(x => ({ x, c:true }))].sort((a,b) => new Date(b.x.start) - new Date(a.x.start));
+  let html = `<div class="topbar"><span></span><button class="btn-icon" data-a="hist-add" aria-label="Log a finished workout or cardio">${ic('plus')}</button></div><h1 class="large-title">History</h1>`;
+  if(!list.length){ v.innerHTML = html + emptyHTML('clock', 'No workouts yet', 'Finished workouts and cardio show up here. Use + to log something you’ve already done.'); return; }
   const monthKey = d => d.toLocaleDateString(undefined, { month:'long', year:'numeric' });
-  const counts = {}; list.forEach(s => { const k = monthKey(new Date(s.start)); counts[k] = (counts[k] || 0) + 1; });
-  const prs = cache().prs; let cur = '';
-  for(const s of list.slice(0, ui.histLimit)){
-    const m = monthKey(new Date(s.start));
-    if(m !== cur){ cur = m; html += `<div class="month-h"><span>${m}</span><span>${plural(counts[m],'workout')}</span></div>`; }
-    html += sessCard(s, prs[s.id]);
+  const counts = {}; list.forEach(({ x, c }) => { const k = monthKey(new Date(x.start)); const n = counts[k] = counts[k] || { w:0, c:0 }; n[c ? 'c' : 'w']++; });
+  const countText = n => [n.w ? plural(n.w,'workout') : '', n.c ? `${n.c} cardio` : ''].filter(Boolean).join(' · ');
+  const prs = cache().prs, cprs = cardioCache().prs; let cur = '';
+  for(const { x, c } of list.slice(0, ui.histLimit)){
+    const m = monthKey(new Date(x.start));
+    if(m !== cur){ cur = m; html += `<div class="month-h"><span>${m}</span><span>${countText(counts[m])}</span></div>`; }
+    html += c ? cardioCard(x, cprs[x.id]) : sessCard(x, prs[x.id]);
   }
-  if(list.length > ui.histLimit) html += `<button class="btn btn-block btn-gray" style="margin-top:16px" data-a="hist-more">Show older workouts</button>`;
+  if(list.length > ui.histLimit) html += `<button class="btn btn-block btn-gray" style="margin-top:16px" data-a="hist-more">Show older</button>`;
   v.innerHTML = html;
 }
 
@@ -2054,8 +2108,9 @@ function renderProgress(){
   const v = $('#v-progress');
   if(!ui.calMonth){ const n = new Date(); ui.calMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
   const head = `<div class="topbar"></div><h1 class="large-title">Progress</h1>
-    <div class="seg lg" style="margin-bottom:16px"><button data-a="prog-view" data-v="training" class="${ui.progView === 'training' ? 'on' : ''}">Training</button><button data-a="prog-view" data-v="body" class="${ui.progView === 'body' ? 'on' : ''}">Body</button></div>`;
+    <div class="seg lg" style="margin-bottom:16px">${[['training','Training'],['cardio','Cardio'],['body','Body']].map(([k, l]) => `<button data-a="prog-view" data-v="${k}" class="${ui.progView === k ? 'on' : ''}">${l}</button>`).join('')}</div>`;
   if(ui.progView === 'body'){ renderBody(v, head); return; }
+  if(ui.progView === 'cardio'){ renderCardio(v, head); return; }
   if(!S.sessions.length){ v.innerHTML = head + emptyHTML('chart', 'No stats yet', 'Finish your first workout and your trends, records and streaks will appear here.', `<button class="btn btn-primary" data-a="tab" data-tab="workout">Start a Workout</button>`); return; }
   const now = new Date(), st = streaks(), wk = weekStats(), lw = weekStats(1);
   const monthCount = S.sessions.filter(s => { const d = new Date(s.start); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).length;
@@ -2108,7 +2163,7 @@ function niceScale(min, max, n=4){
 }
 const fmtAxis = v => v >= 1000 ? fmtNum(v/1000, v >= 100000 ? 0 : 1) + 'k' : fmtNum(v, 1);
 const shortDate = x => new Date(x).toLocaleDateString(undefined, { day:'numeric', month:'short' });
-function lineChart(el, pts, { fmt, ring = 'var(--card-2)' }){
+function lineChart(el, pts, { fmt, ring = 'var(--card-2)', color = '#0a84ff', axis = fmtAxis, invert = false }){
   if(!pts.length){ el.innerHTML = '<div class="chart-empty">No data yet</div>'; return; }
   const W = el.clientWidth || 320, H = el.clientHeight || 190;
   const L = 6, R = 46, T = 30, B = 22;
@@ -2116,20 +2171,21 @@ function lineChart(el, pts, { fmt, ring = 'var(--card-2)' }){
   if(x1 === x0){ x0 -= 864e5; x1 += 864e5; }
   const [y0, y1, ticks] = niceScale(Math.min(...pts.map(p => p.y)), Math.max(...pts.map(p => p.y)));
   const X = x => L + (x - x0) / (x1 - x0) * (W - L - R);
-  const Y = y => T + (1 - (y - y0) / ((y1 - y0) || 1)) * (H - T - B);
+  const Y = y => T + (invert ? y - y0 : y1 - y) / ((y1 - y0) || 1) * (H - T - B);
+  const gid = 'lg' + uid();
   const line = pts.map((p, i) => (i ? 'L' : 'M') + X(p.x).toFixed(1) + ',' + Y(p.y).toFixed(1)).join('');
   const area = pts.length > 1 ? `${line}L${X(pts[pts.length-1].x).toFixed(1)},${H-B}L${X(pts[0].x).toFixed(1)},${H-B}Z` : '';
   const last = pts[pts.length-1];
   el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Trend chart">
-    <defs><linearGradient id="lg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0a84ff" stop-opacity=".28"/><stop offset="1" stop-color="#0a84ff" stop-opacity="0"/></linearGradient></defs>
-    ${ticks.map(t => `<line x1="${L}" x2="${W-R+6}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}" stroke="rgba(255,255,255,.08)"/><text class="ax" x="${W-R+10}" y="${(Y(t)+4).toFixed(1)}">${fmtAxis(t)}</text>`).join('')}
+    <defs><linearGradient id="${gid}" x1="0" x2="0" y1="${invert ? 1 : 0}" y2="${invert ? 0 : 1}"><stop offset="0" stop-color="${color}" stop-opacity=".28"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    ${ticks.map(t => `<line x1="${L}" x2="${W-R+6}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}" stroke="rgba(255,255,255,.08)"/><text class="ax" x="${W-R+10}" y="${(Y(t)+4).toFixed(1)}">${axis(t)}</text>`).join('')}
     <text class="ax" x="${L}" y="${H-5}">${shortDate(pts[0].x)}</text>
     ${pts.length > 1 ? `<text class="ax" x="${W-R}" y="${H-5}" text-anchor="end">${shortDate(last.x)}</text>` : ''}
-    ${area ? `<path d="${area}" fill="url(#lg)"/>` : ''}
-    <path d="${line}" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-    ${pts.length <= 40 ? pts.map(p => `<circle cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="3.5" fill="#0a84ff" stroke="${ring}" stroke-width="2"/>`).join('') : ''}
-    <circle cx="${X(last.x).toFixed(1)}" cy="${Y(last.y).toFixed(1)}" r="5" fill="#0a84ff" stroke="${ring}" stroke-width="2"/>
-    <g class="hover" style="display:none"><line y1="${T-6}" y2="${H-B}" stroke="rgba(255,255,255,.35)" stroke-dasharray="3 3"/><circle r="6" fill="#0a84ff" stroke="#fff" stroke-width="2"/></g>
+    ${area ? `<path d="${area}" fill="url(#${gid})"/>` : ''}
+    <path d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${pts.length <= 40 ? pts.map(p => `<circle cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="3.5" fill="${color}" stroke="${ring}" stroke-width="2"/>`).join('') : ''}
+    <circle cx="${X(last.x).toFixed(1)}" cy="${Y(last.y).toFixed(1)}" r="5" fill="${color}" stroke="${ring}" stroke-width="2"/>
+    <g class="hover" style="display:none"><line y1="${T-6}" y2="${H-B}" stroke="rgba(255,255,255,.35)" stroke-dasharray="3 3"/><circle r="6" fill="${color}" stroke="#fff" stroke-width="2"/></g>
   </svg><div class="tip"></div>`;
   const g = el.querySelector('.hover'), tip = el.querySelector('.tip');
   const show = cx => {
@@ -2145,23 +2201,33 @@ function lineChart(el, pts, { fmt, ring = 'var(--card-2)' }){
   el.onpointermove = el.onpointerdown = e => show(e.clientX - el.getBoundingClientRect().left);
   el.onpointerleave = hide;
 }
-function barChart(el, bars, { fmt }){
+function barChart(el, bars, { fmt, aria = 'Weekly volume bar chart', color = '#0a84ff' }){
   const W = el.clientWidth || 320, H = el.clientHeight || 190;
   const L = 2, R = 44, T = 30, B = 22;
   const [, y1, ticks] = niceScale(0, Math.max(1, ...bars.map(b => b.value)));
   const n = bars.length, bw = (W - L - R) / n, w = Math.max(4, bw - 6);
   const Y = v => T + (1 - v / y1) * (H - T - B);
   const base = H - B;
-  const barPath = (x, y) => { const h = base - y, r = Math.min(4, h, w/2); return `M${x},${base}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${base}Z`; };
-  el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Weekly volume bar chart">
+  const barPath = (x, y, b = base) => { const h = b - y, r = Math.min(4, h, w/2); return `M${x},${b}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${b}Z`; };
+  /* Stacked bars: segments bottom-up with a 2px gap; only the top one is rounded. */
+  const barSVG = (b, x) => {
+    const parts = (b.parts || [{ v:b.value, c:color }]).filter(p => p.v > 0); let acc = 0;
+    return parts.map((p, j) => {
+      const yb = j ? Y(acc) - 2 : base, yt = Y(acc += p.v);
+      if(yb - yt < .5) return '';
+      return j === parts.length - 1 ? `<path d="${barPath(x, yt, yb)}" fill="${p.c}"/>` : `<rect x="${x}" y="${yt.toFixed(1)}" width="${w}" height="${(yb - yt).toFixed(1)}" fill="${p.c}"/>`;
+    }).join('');
+  };
+  el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(aria)}">
     ${ticks.map(t => `<line x1="${L}" x2="${W-R+6}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}" stroke="rgba(255,255,255,${t === 0 ? .2 : .08})"/><text class="ax" x="${W-R+10}" y="${(Y(t)+4).toFixed(1)}">${fmtAxis(t)}</text>`).join('')}
-    ${bars.map((b, i) => { const x = L + i*bw + (bw - w)/2; return (b.value > 0 ? `<path d="${barPath(x, Y(b.value))}" fill="#0a84ff" fill-opacity="${i === n-1 ? 1 : .55}" data-i="${i}"/>` : '') + ((i % 3 === 2 || i === n-1) && (i === n-1 || i < n-2) ? `<text class="ax" x="${(x + w/2).toFixed(1)}" y="${H-5}" text-anchor="middle">${esc(b.label)}</text>` : ''); }).join('')}
+    ${bars.map((b, i) => { const x = L + i*bw + (bw - w)/2; return (b.value > 0 ? `<g fill-opacity="${i === n-1 ? 1 : .55}" data-i="${i}">${barSVG(b, x)}</g>` : '') + ((i % 3 === 2 || i === n-1) && (i === n-1 || i < n-2) ? `<text class="ax" x="${(x + w/2).toFixed(1)}" y="${H-5}" text-anchor="middle">${esc(b.label)}</text>` : ''); }).join('')}
   </svg><div class="tip"></div>`;
-  const tip = el.querySelector('.tip'), paths = el.querySelectorAll('path[data-i]');
+  const tip = el.querySelector('.tip'), paths = el.querySelectorAll('[data-i]');
   const show = cx => {
     const i = Math.max(0, Math.min(n-1, Math.floor((cx - L) / bw))), b = bars[i];
     paths.forEach(p => p.setAttribute('fill-opacity', +p.dataset.i === i ? 1 : .35));
-    tip.innerHTML = `<b>${esc(fmt(b.value))}</b>${esc(b.tip)}`;
+    const parts = (b.parts || []).filter(p => p.v > 0);
+    tip.innerHTML = `<b>${esc(fmt(b.value))}</b>${esc(b.tip)}${parts.length > 1 ? parts.map(p => `<span class="tp"><i style="background:${p.c}"></i>${esc(p.label)} ${esc(fmt(p.v))}</span>`).join('') : ''}`;
     tip.style.left = Math.min(W - 60, Math.max(60, L + i*bw + bw/2)) + 'px'; tip.classList.add('show');
   };
   const hide = () => { tip.classList.remove('show'); paths.forEach(p => p.setAttribute('fill-opacity', +p.dataset.i === n-1 ? 1 : .55)); };
@@ -2205,7 +2271,7 @@ function sparkSVG(ser){
 }
 function bodyNudge(){
   const days = REMIND_DAYS[S.settings.bodyRemind];
-  if(!days || !S.body.track.includes('weight') || !S.sessions.length) return '';
+  if(!days || !S.body.track.includes('weight') || !(S.sessions.length || S.cardio.length)) return '';
   const last = metricSeries('weight').pop(), now = Date.now();
   if(last && now - dateMs(last.date) < days*864e5) return '';
   if(now - (+prefGet('it_body_nudge') || 0) < days*864e5) return '';
@@ -2365,6 +2431,406 @@ async function chooseRemind(){
 }
 
 /* =========================================================
+   Cardio — runs, walks, hikes and rides logged after the fact
+   (Progress → Cardio). Distances are stored in km, time in seconds,
+   elevation in metres; pace is derived (sec per km).
+   ========================================================= */
+const MI = 1.609344;
+const CTYPES = ['run','walk','hike','cycle'];
+const CT = {
+  run:  { label:'Run',  pick:'Run',   noun:'run',  ing:'running', icon:'run',  c:'#0a84ff', indoor:'Treadmill' },
+  walk: { label:'Walk', pick:'Walk',  noun:'walk', ing:'walking', icon:'walk', c:'#66d4cf', indoor:'Treadmill' },
+  hike: { label:'Hike', pick:'Hike',  noun:'hike', ing:'hiking',  icon:'hike', c:'#d4a373', indoor:'' },
+  cycle:{ label:'Ride', pick:'Cycle', noun:'ride', ing:'cycling', icon:'bike', c:'#ff6482', indoor:'Indoor / trainer', speed:true }
+};
+/* Stack order for the weekly chart: keeps the pairs that are hardest to tell apart with colour blindness from touching. */
+const STACK = ['run','hike','walk','cycle'];
+const EFFORT = [null, { label:'Easy', c:'#30d158' }, { label:'Moderate', c:'#ffd60a' }, { label:'Hard', c:'#ff9f0a' }, { label:'Max', c:'#ff453a' }];
+const soft = (hex, a=.18) => `rgba(${[1,3,5].map(i => parseInt(hex.slice(i, i+2), 16)).join(',')},${a})`;
+const DU = () => S.settings.distUnit || (U() === 'lb' ? 'mi' : 'km');
+const toDist = km => DU() === 'mi' ? km / MI : km;
+const fromDist = v => DU() === 'mi' ? v * MI : v;
+const fmtDist = km => fmtNum(toDist(km), toDist(km) >= 100 ? 1 : 2);
+const EU = () => DU() === 'mi' ? 'ft' : 'm';
+const toElev = m => DU() === 'mi' ? m / 0.3048 : m;
+const fromElev = v => DU() === 'mi' ? v * 0.3048 : v;
+const PU = () => '/' + DU();
+const SU = () => DU() === 'mi' ? 'mph' : 'km/h';
+const paceOf = a => a.dist > 0 && a.dur > 0 ? a.dur / a.dist : null;            // sec per km
+const speedOf = a => a.dist > 0 && a.dur > 0 ? a.dist / (a.dur / 3600) : null;   // km/h
+const fmtPace = spk => fmtClock(spk * (DU() === 'mi' ? MI : 1));
+const fmtSpeed = kmh => fmtNum(toDist(kmh), 1);
+const fmtHMS = sec => fmtDur(sec * 1000);
+function rateParts(a){
+  if(CT[a.type].speed){ const v = speedOf(a); return v ? { v:fmtSpeed(v), u:SU() } : null; }
+  const p = paceOf(a); return p ? { v:fmtPace(p), u:PU() } : null;
+}
+function partOfDay(d){ const h = d.getHours(); return h<5?'Night':h<12?'Morning':h<17?'Afternoon':h<21?'Evening':'Night'; }
+const cardioName = a => `${partOfDay(new Date(a.start))} ${CT[a.type].label}`;
+const actWord = n => n === 1 ? '1 activity' : `${n} activities`;
+const cico = (type, cls='') => `<span class="cico ${cls}" style="--c:${CT[type].c};--cs:${soft(CT[type].c)}">${ic(CT[type].icon)}</span>`;
+const effChip = k => EFFORT[k] ? `<span class="eff" style="--c:${EFFORT[k].c};--cs:${soft(EFFORT[k].c, .16)}"><span class="lv">${[1,2,3,4].map(i => `<i class="${i <= k ? 'on' : ''}"></i>`).join('')}</span>${EFFORT[k].label}</span>` : '';
+
+function normCardio(list){
+  const num = (v, lo, hi) => { v = +v; return v > lo && v <= hi ? v : null; };
+  return (Array.isArray(list) ? list : []).filter(a => a && a.id && a.start && CT[a.type] && !isNaN(new Date(a.start))).map(a => {
+    const o = { id:String(a.id), type:a.type, start:a.start };
+    const dist = num(a.dist, 0, 2000), dur = num(a.dur, 0, 172800), hr = num(a.hr, 0, 260), elev = num(a.elev, 0, 15000), cal = num(a.cal, 0, 30000);
+    if(dist) o.dist = dist; if(dur) o.dur = Math.round(dur);
+    if([1,2,3,4].includes(+a.effort)) o.effort = +a.effort;
+    if(hr) o.hr = Math.round(hr); if(elev) o.elev = Math.round(elev); if(cal) o.cal = Math.round(cal);
+    if(a.indoor && CT[a.type].indoor) o.indoor = true;
+    if(a.notes) o.notes = String(a.notes);
+    return o;
+  }).filter(a => a.dist || a.dur);
+}
+
+/* Records per type. Treadmill/indoor sessions count toward distance but not pace or speed. */
+function cardioRecKinds(a){
+  const out = [], fair = !a.indoor;
+  if(a.dist > 0) out.push(['dist', a.dist, 1]);
+  if(fair && a.dist >= 1 && a.dur > 0 && a.type !== 'hike') out.push(CT[a.type].speed ? ['speed', speedOf(a), 1] : ['pace', paceOf(a), -1]);
+  if(a.type === 'run' && fair && a.dur > 0){
+    if(a.dist >= 5) out.push(['k5', a.dur * 5 / a.dist, -1]);
+    if(a.dist >= 10) out.push(['k10', a.dur * 10 / a.dist, -1]);
+  }
+  if(a.type === 'hike' && a.elev > 0) out.push(['elev', a.elev, 1]);
+  return out;
+}
+function cardioCache(){
+  const c = cache(); if(c.cardio) return c.cardio;
+  const sorted = S.cardio.slice().sort((a, b) => new Date(a.start) - new Date(b.start));
+  const prs = {}, best = {};
+  for(const a of sorted){
+    const b = best[a.type] = best[a.type] || {}, list = [];
+    for(const [kind, v, dir] of cardioRecKinds(a)){
+      const cur = b[kind], better = !cur || (dir > 0 ? v > cur.v + 1e-9 : v < cur.v - 1e-9);
+      if(cur && better) list.push({ kind, v });
+      if(better) b[kind] = { v, id:a.id };
+    }
+    if(list.length) prs[a.id] = list;
+  }
+  return (c.cardio = { sorted, prs, best });
+}
+function cardioRecText(kind, v, type){
+  const t = CT[type];
+  return ({
+    dist: { label:`Longest ${t.noun}`, text:`${fmtDist(v)} ${DU()}` },
+    pace: { label:'Fastest pace', text:`${fmtPace(v)} ${PU()}` },
+    speed:{ label:'Fastest avg. speed', text:`${fmtSpeed(v)} ${SU()}` },
+    k5:   { label:'Fastest 5K', text:fmtHMS(Math.round(v)) },
+    k10:  { label:'Fastest 10K', text:fmtHMS(Math.round(v)) },
+    elev: { label:'Most climbing', text:`${Math.round(toElev(v)).toLocaleString()} ${EU()}` }
+  })[kind];
+}
+function bestWeek(type){
+  const m = {};
+  S.cardio.forEach(a => { if(a.type === type && a.dist > 0){ const k = +startOfWeek(new Date(a.start)); m[k] = (m[k] || 0) + a.dist; } });
+  let best = null; for(const k in m) if(!best || m[k] > best.v) best = { v:m[k], w:+k };
+  return best;
+}
+const sumDist = list => list.reduce((x, a) => x + (a.dist || 0), 0);
+
+/* ---------- History card & detail ---------- */
+function cardioCard(a, prs){
+  const t = CT[a.type], rp = rateParts(a);
+  const stats = [a.dist > 0 ? `<span><b>${fmtDist(a.dist)}</b>${DU()}</span>` : '', a.dur > 0 ? `<span><b>${fmtHMS(a.dur)}</b></span>` : '', rp ? `<span><b>${rp.v}</b>${rp.u}</span>` : ''].join('');
+  const chips = `${effChip(a.effort)}${a.indoor && t.indoor ? `<span class="small muted">${ic('home')}${t.indoor}</span>` : ''}${prs ? `<span class="badge">${ic('trophy')}${plural(prs.length,'PR')}</span>` : ''}`;
+  return `<button class="sess" data-a="cardio" data-id="${esc(a.id)}">
+    <div class="sess-top"><span class="sess-name c-name">${cico(a.type)}<span>${esc(cardioName(a))}</span></span><span class="sess-date">${new Date(a.start).toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short' })}</span></div>
+    <div class="c-stats num">${stats}</div>
+    ${chips ? `<div class="c-chips">${chips}</div>` : ''}
+    ${a.notes ? `<div class="c-notes">${esc(a.notes)}</div>` : ''}
+  </button>`;
+}
+function openCardio(id){
+  openSheet({ live:true, full:true,
+    render: () => {
+      const a = S.cardio.find(x => x.id === id);
+      if(!a) return `${sheetHead(btnClose(), '', '')}<div class="sheet-body">${emptyHTML('run', 'Activity deleted', '')}</div>`;
+      const t = CT[a.type], prs = cardioCache().prs[id] || [], rp = rateParts(a);
+      const end = a.dur ? new Date(new Date(a.start).getTime() + a.dur*1000).toISOString() : null;
+      const extras = [
+        a.effort ? `<div class="row has-ico">${sico('gauge','#5e5ce6')}<span class="grow">Effort</span>${effChip(a.effort)}</div>` : '',
+        a.hr ? `<div class="row has-ico">${sico('heart','#ff375f')}<span class="grow">Avg. heart rate</span><span class="trail num">${a.hr} bpm</span></div>` : '',
+        a.elev ? `<div class="row has-ico">${sico('hike','#a2845e')}<span class="grow">Elevation gain</span><span class="trail num">${Math.round(toElev(a.elev)).toLocaleString()} ${EU()}</span></div>` : '',
+        a.cal ? `<div class="row has-ico">${sico('flame','#ff9f0a')}<span class="grow">Calories</span><span class="trail num">${a.cal.toLocaleString()} kcal</span></div>` : '',
+        a.indoor && t.indoor ? `<div class="row has-ico">${sico('home','#8e8e93')}<span class="grow">${t.indoor}</span><span class="trail small">Not counted for ${t.speed ? 'speed' : 'pace'} records</span></div>` : ''
+      ].join('');
+      return `${sheetHead(btnClose(), '', `<button class="text-btn" data-a="edit">Edit</button>`)}
+        <div class="sheet-body">
+          <div class="c-head">${cico(a.type, 'lg')}<div class="grow"><h2 class="sheet-h1" style="margin:0">${esc(cardioName(a))}</h2><div class="small muted">${fmtLongDate(a.start)} · ${fmtTime(a.start)}${end ? '–' + fmtTime(end) : ''}</div></div></div>
+          <div class="tiles three" style="margin-bottom:12px">
+            ${tile('Distance', a.dist > 0 ? fmtDist(a.dist) + `<small>${DU()}</small>` : '—')}
+            ${tile('Time', a.dur > 0 ? fmtHMS(a.dur) : '—')}
+            ${tile(t.speed ? 'Avg. speed' : 'Pace', rp ? rp.v + `<small>${rp.u}</small>` : '—')}
+          </div>
+          ${prs.length ? `<div class="card" style="padding:10px 14px;margin-bottom:12px">${prs.map(p => { const r = cardioRecText(p.kind, p.v, a.type); return `<div class="pr-line">${ic('trophy')}<span class="grow"><b>${esc(r.label)}</b></span><span class="num" style="color:var(--orange);font-weight:600">${esc(r.text)}</span></div>`; }).join('')}</div>` : ''}
+          ${extras ? `<div class="list">${extras}</div>` : ''}
+          ${a.notes ? `<div class="card" style="margin-top:12px"><div class="small muted" style="margin-bottom:4px">Notes</div><div style="white-space:pre-wrap;font-size:15px;line-height:1.45">${esc(a.notes)}</div></div>` : ''}
+          <div class="btn-col"><button class="btn btn-block btn-danger" data-a="del">${ic('trash')} Delete ${t.label}</button></div>
+        </div>`;
+    },
+    actions: {
+      edit: () => openCardioLog(id),
+      del: async (t, e, s) => {
+        if(!(await confirmDlg('Delete this activity?', 'It will be permanently removed from your history and stats.'))) return;
+        S.cardio = S.cardio.filter(x => x.id !== id);
+        save(); closeAllSheets(); refresh(); toast('Activity deleted');
+      }
+    }
+  });
+}
+
+/* ---------- Log / edit form ----------
+   Distance, time and pace (or speed for rides): fill in any two and the third
+   is worked out. A field the app filled in is "auto" and gets replaced first. */
+function cfRead(st){
+  const km = toNum(st.dist) > 0 ? fromDist(toNum(st.dist)) : 0;
+  const dur = (st.h + st.m + st.s).trim() ? (toNum(st.h) || 0)*3600 + (toNum(st.m) || 0)*60 + (toNum(st.s) || 0) : 0;
+  let rate = 0;
+  if(CT[st.type].speed){ const v = toNum(st.spd); rate = v > 0 ? fromDist(v) : 0; }
+  else if((st.pm + st.ps).trim()){ const sec = (toNum(st.pm) || 0)*60 + (toNum(st.ps) || 0); rate = sec > 0 ? sec / (DU() === 'mi' ? MI : 1) : 0; }
+  return { km, dur, rate };
+}
+const CF_GROUP = { dist:'dist', h:'time', m:'time', s:'time', pm:'pace', ps:'pace', spd:'pace' };
+function cfSet(st, el, g, val){
+  const put = (f, v) => { st[f] = v; const i = el && el.querySelector(`[data-f="${f}"]`); if(i){ i.value = v; i.classList.add('auto'); } };
+  if(g === 'dist') put('dist', val ? fmtNum(toDist(val), 2) : '');
+  else if(g === 'time'){
+    const t = val ? Math.round(val) : 0;
+    put('h', t >= 3600 ? String(Math.floor(t/3600)) : ''); put('m', t ? (t >= 3600 ? pad(Math.floor(t%3600/60)) : String(Math.floor(t/60))) : ''); put('s', t ? pad(t%60) : '');
+  }
+  else if(CT[st.type].speed) put('spd', val ? fmtNum(toDist(val), 1) : '');
+  else { const p = val ? Math.round(val * (DU() === 'mi' ? MI : 1)) : 0; put('pm', p ? String(Math.floor(p/60)) : ''); put('ps', p ? pad(p%60) : ''); }
+}
+function cfCompute(st, target){
+  const v = cfRead(st), speed = CT[st.type].speed;
+  const has = { dist:v.km > 0, time:v.dur > 0, pace:v.rate > 0 };
+  if(!['dist','time','pace'].filter(x => x !== target).every(x => has[x])) return null;
+  if(target === 'pace') return speed ? v.km / (v.dur/3600) : v.dur / v.km;
+  if(target === 'time') return speed ? v.km / v.rate * 3600 : v.km * v.rate;
+  return speed ? v.rate * v.dur / 3600 : v.dur / v.rate;
+}
+function cfDerive(st, el, g){
+  st.order = [g, ...st.order.filter(x => x !== g)]; st.auto.delete(g);
+  if(el) Object.keys(CF_GROUP).filter(f => CF_GROUP[f] === g).forEach(f => { const i = el.querySelector(`[data-f="${f}"]`); if(i) i.classList.remove('auto'); });
+  const v = cfRead(st), has = { dist:v.km > 0, time:v.dur > 0, pace:v.rate > 0 };
+  const others = ['dist','time','pace'].filter(x => x !== g), age = x => { const i = st.order.indexOf(x); return i < 0 ? 99 : i; };
+  const target = others.find(x => st.auto.has(x)) || others.find(x => !has[x]) || others.sort((a, b) => age(b) - age(a))[0];
+  const val = cfCompute(st, target);
+  if(val != null && isFinite(val) && val > 0){ cfSet(st, el, target, val); st.auto.add(target); }
+  else if(st.auto.has(target)) cfSet(st, el, target, null);
+}
+function openCardioLog(id, { type } = {}){
+  const orig = id ? S.cardio.find(x => x.id === id) : null;
+  const last = cardioCache().sorted.slice(-1)[0];
+  const st = { type: orig ? orig.type : type || (last ? last.type : 'run'), start: orig ? orig.start : null, dist:'', h:'', m:'', s:'', pm:'', ps:'', spd:'',
+    effort: orig ? orig.effort || 0 : 0, hr:'', elev:'', cal:'', indoor: orig ? !!orig.indoor : false, notes: orig ? orig.notes || '' : '', more:false, auto:new Set(), order:[] };
+  if(orig){
+    if(orig.dist) cfSet(st, null, 'dist', orig.dist);
+    if(orig.dur) cfSet(st, null, 'time', orig.dur);
+    const r = cfCompute(st, 'pace'); if(r){ cfSet(st, null, 'pace', r); st.auto.add('pace'); }
+    if(orig.hr) st.hr = String(orig.hr);
+    if(orig.elev) st.elev = String(Math.round(toElev(orig.elev)));
+    if(orig.cal) st.cal = String(orig.cal);
+    st.more = !!(orig.hr || orig.cal || orig.indoor || (orig.elev && orig.type !== 'hike'));
+  }
+  const defStart = () => { const v = cfRead(st), d = new Date(Date.now() - (v.dur || 1800)*1000); d.setSeconds(0, 0); d.setMinutes(Math.floor(d.getMinutes()/5)*5); return d.toISOString(); };
+  const inp = (f, cls, ph, mode='numeric', label='') => `<input class="c-in ${cls}${st.auto.has(CF_GROUP[f]) ? ' auto' : ''}" data-f="${f}" inputmode="${mode}" autocomplete="off" value="${esc(st[f])}" placeholder="${ph}" aria-label="${label || ph}">`;
+  const elevRow = () => `<label class="row"><span class="grow">Elevation gain</span>${inp('elev', 'w', '0', 'numeric', 'Elevation gain')}<span class="body-unit">${EU()}</span></label>`;
+  const render = () => {
+    const t = CT[st.type], du = DU();
+    return `${sheetHead(btnClose('Cancel'), orig ? 'Edit Cardio' : 'Log Cardio', `<button class="text-btn bold" data-a="save">Save</button>`)}
+    <div class="sheet-body">
+      <div class="seg lg c-types">${CTYPES.map(k => `<button data-a="type" data-v="${k}" class="${st.type === k ? 'on' : ''}">${ic(CT[k].icon)}${CT[k].pick}</button>`).join('')}</div>
+      <label class="lbl" for="cf-start">Started</label>
+      <input class="field" type="datetime-local" id="cf-start" value="${toLocalInput(st.start || defStart())}" max="${toLocalInput(new Date().toISOString())}">
+      <div class="list" style="margin-top:16px">
+        <label class="row"><span class="grow">Distance</span>${inp('dist', 'w', '0.00', 'decimal', 'Distance in ' + du)}<span class="body-unit">${du}</span></label>
+        <div class="row"><span class="grow">Time</span><span class="c-hms">${inp('h', '', 'h', 'numeric', 'Hours')}<span class="c-sep">:</span>${inp('m', '', 'min', 'numeric', 'Minutes')}<span class="c-sep">:</span>${inp('s', '', 's', 'numeric', 'Seconds')}</span></div>
+        ${t.speed
+          ? `<label class="row"><span class="grow">Avg. speed</span>${inp('spd', 'w', '0.0', 'decimal', 'Average speed in ' + SU())}<span class="body-unit">${SU()}</span></label>`
+          : `<div class="row"><span class="grow">Pace</span><span class="c-hms">${inp('pm', '', 'min', 'numeric', 'Pace minutes')}<span class="c-sep">:</span>${inp('ps', '', 's', 'numeric', 'Pace seconds')}</span><span class="body-unit">${PU()}</span></div>`}
+        ${st.type === 'hike' ? elevRow() : ''}
+      </div>
+      <div class="caption">Copy these from your fitness app. Fill in any two of distance, time and ${t.speed ? 'speed' : 'pace'} and the third is worked out for you.</div>
+      <div class="lbl">Effort</div>
+      <div class="eff-pick">${[1,2,3,4].map(k => `<button data-a="effort" data-v="${k}" class="${st.effort === k ? 'on' : ''}" style="--c:${EFFORT[k].c};--cs:${soft(EFFORT[k].c, .16)}"><span class="lv">${[1,2,3,4].map(i => `<i class="${i <= k ? 'on' : ''}"></i>`).join('')}</span>${EFFORT[k].label}</button>`).join('')}</div>
+      <div class="lbl">Notes</div>
+      <textarea class="field" data-f="notes" rows="2" placeholder="Optional — e.g. parkrun, intervals, with Mom">${esc(st.notes)}</textarea>
+      <div class="list" style="margin-top:16px">
+        <button class="row tap" data-a="more"><span class="grow">More details</span><span class="trail small">${st.more ? '' : 'Optional'}<span class="c-disc${st.more ? ' open' : ''}">${chev()}</span></span></button>
+        ${st.more ? `
+          <label class="row"><span class="grow">Avg. heart rate</span>${inp('hr', 'w', '–', 'numeric', 'Average heart rate')}<span class="body-unit">bpm</span></label>
+          ${st.type === 'hike' ? '' : elevRow()}
+          <label class="row"><span class="grow">Calories</span>${inp('cal', 'w', '–', 'numeric', 'Calories')}<span class="body-unit">kcal</span></label>
+          ${t.indoor ? `<label class="row"><span class="grow">${t.indoor}</span><input type="checkbox" class="switch" id="cf-indoor" ${st.indoor ? 'checked' : ''}></label>` : ''}` : ''}
+      </div>
+      ${st.more && t.indoor ? `<div class="caption">${t.indoor} sessions count toward your distance but not your ${t.speed ? 'speed' : 'pace'} records.</div>` : ''}
+      ${orig ? `<button class="btn btn-block btn-danger" style="margin-top:24px" data-a="del">${ic('trash')} Delete ${t.label}</button>` : ''}
+    </div>`;
+  };
+  const sh = openSheet({ full:true, modal:true, render,
+    mount: s => {
+      const d = s.el.querySelector('#cf-start');
+      d.onchange = () => { const v = new Date(d.value); if(!isNaN(v)) st.start = v.toISOString(); };
+      s.el.querySelectorAll('[data-f]').forEach(i => { i.oninput = () => {
+        const f = i.dataset.f; st[f] = i.value;
+        if(CF_GROUP[f]){ cfDerive(st, s.el, CF_GROUP[f]); if(!orig && !st.start) d.value = toLocalInput(defStart()); }
+      }; });
+      const ind = s.el.querySelector('#cf-indoor'); if(ind) ind.onchange = () => { st.indoor = ind.checked; };
+    },
+    actions: {
+      type: (t, e, s) => {
+        const was = CT[st.type].speed; st.type = t.dataset.v;
+        if(!!CT[st.type].speed !== !!was || st.auto.has('pace')){
+          ['pm','ps','spd'].forEach(f => { st[f] = ''; });
+          const r = cfCompute(st, 'pace'); if(r){ cfSet(st, null, 'pace', r); st.auto.add('pace'); } else st.auto.delete('pace');
+        }
+        s.rerender();
+      },
+      effort: (t, e, s) => { const k = +t.dataset.v; st.effort = st.effort === k ? 0 : k; s.rerender(); },
+      more: (t, e, s) => { st.more = !st.more; s.rerender(); },
+      save: (t, e, s) => {
+        if(document.activeElement) document.activeElement.blur();
+        const v = cfRead(st), speed = CT[st.type].speed;
+        let km = v.km, dur = v.dur;
+        if(!dur && km && v.rate) dur = speed ? km / v.rate * 3600 : km * v.rate;
+        if(!km && dur && v.rate) km = speed ? v.rate * dur / 3600 : dur / v.rate;
+        if(!(km > 0) && !(dur > 0)){ toast('Enter a distance or a time'); return; }
+        if(km > 1000){ toast('That distance looks too long'); return; }
+        if(dur > 48*3600){ toast('That time looks too long'); return; }
+        const start = st.start || defStart();
+        if(new Date(start) > new Date(Date.now() + 5*60000)){ toast('The start time is in the future'); return; }
+        const hr = Math.round(toNum(st.hr)), elev = toNum(st.elev), cal = Math.round(toNum(st.cal));
+        if(String(st.hr).trim() && !(hr >= 30 && hr <= 250)){ toast('Check the heart rate'); return; }
+        if(String(st.elev).trim() && !(elev >= 0 && fromElev(elev) <= 15000)){ toast('Check the elevation'); return; }
+        if(String(st.cal).trim() && !(cal >= 0 && cal <= 30000)){ toast('Check the calories'); return; }
+        const a = { id: orig ? orig.id : uid(), type:st.type, start };
+        if(km > 0) a.dist = Math.round(km * 1000) / 1000;
+        if(dur > 0) a.dur = Math.round(dur);
+        if(st.effort) a.effort = st.effort;
+        if(hr > 0) a.hr = hr;
+        if(elev > 0) a.elev = Math.round(fromElev(elev));
+        if(cal > 0) a.cal = cal;
+        if(st.indoor && CT[st.type].indoor) a.indoor = true;
+        const notes = st.notes.trim(); if(notes) a.notes = notes;
+        if(orig) S.cardio[S.cardio.indexOf(orig)] = a; else S.cardio.push(a);
+        save(); s.close(); refresh();
+        if(orig) toast('Activity saved'); else showCardioSummary(a);
+      },
+      del: async () => {
+        if(!(await confirmDlg('Delete this activity?', 'It will be permanently removed from your history and stats.'))) return;
+        S.cardio = S.cardio.filter(x => x.id !== orig.id);
+        save(); closeAllSheets(); refresh(); toast('Activity deleted');
+      }
+    }
+  });
+  return sh;
+}
+function showCardioSummary(a){
+  const prs = cardioCache().prs[a.id] || [], t = CT[a.type], rp = rateParts(a), ws = startOfWeek(new Date());
+  const wkKm = new Date(a.start) >= ws ? sumDist(S.cardio.filter(x => x.type === a.type && new Date(x.start) >= ws)) : 0;
+  openSheet({ render: () => `${sheetHead('', '', btnClose('Done', true))}
+    <div class="sheet-body">
+      <div class="done-badge${prs.length ? ' pr' : ''}">${ic(prs.length ? 'trophy' : 'check')}</div>
+      <h2 class="sheet-h1 center">${t.label} logged</h2>
+      <div class="muted center" style="margin-bottom:18px">${esc(cardioName(a))} · ${relDay(a.start)}</div>
+      <div class="tiles three">
+        ${tile('Distance', a.dist > 0 ? fmtDist(a.dist) + `<small>${DU()}</small>` : '—')}
+        ${tile('Time', a.dur > 0 ? fmtHMS(a.dur) : '—')}
+        ${tile(t.speed ? 'Avg. speed' : 'Pace', rp ? rp.v + `<small>${rp.u}</small>` : '—')}
+      </div>
+      ${prs.length ? `<div class="group-h">${plural(prs.length,'personal record')}</div><div class="list">${prs.map(p => { const r = cardioRecText(p.kind, p.v, a.type); return `<div class="row">${ic('trophy')}<div class="grow"><div class="title">${esc(r.label)}</div></div><span class="trail num" style="color:var(--orange);font-weight:600">${esc(r.text)}</span></div>`; }).join('')}</div>` : ''}
+      ${wkKm > 0 ? `<div class="caption center" style="margin-top:16px">That’s <b>${fmtDist(wkKm)} ${DU()}</b> of ${t.ing} this week.</div>` : ''}
+      <div class="btn-col"><button class="btn btn-block btn-primary" data-a="close">Done</button></div>
+    </div>` });
+}
+
+/* ---------- Progress → Cardio ---------- */
+function renderCardio(v, head){
+  if(!S.cardio.length){
+    v.innerHTML = head + emptyHTML('run', 'No cardio yet', 'Log runs, walks, hikes and rides from your running or cycling app to see your distance, pace and records here.', `<button class="btn btn-primary" data-a="log-cardio">${ic('plus')} Log Cardio</button>`);
+    return;
+  }
+  const present = CTYPES.filter(t => S.cardio.some(a => a.type === t));
+  let f = ui.cardioType;
+  if(present.length === 1) f = present[0];
+  else if(f !== 'all' && !present.includes(f)) f = ui.cardioType = 'all';
+  const list = S.cardio.filter(a => f === 'all' || a.type === f).sort((a, b) => new Date(a.start) - new Date(b.start));
+  const now = new Date(), ws = startOfWeek(now), ms = new Date(now.getFullYear(), now.getMonth(), 1);
+  const wkL = list.filter(a => new Date(a.start) >= ws), moL = list.filter(a => new Date(a.start) >= ms);
+  const tDist = km => fmtNum(toDist(km), 1) + `<small>${DU()}</small>`;
+  const countW = n => f === 'all' ? actWord(n) : plural(n, CT[f].noun);
+  let t4;
+  if(f === 'all'){
+    const sec = moL.reduce((x, a) => x + (a.dur || 0), 0);
+    t4 = tile('Time this month', sec ? fmtDurShort(sec*1000) : '—', countW(moL.length));
+  } else {
+    const rec = list.filter(a => now - new Date(a.start) < 30*864e5 && a.dist > 0 && a.dur > 0);
+    const d = sumDist(rec), sec = rec.reduce((x, a) => x + a.dur, 0);
+    t4 = CT[f].speed ? tile('Avg. speed', d ? fmtSpeed(d / (sec/3600)) + `<small>${SU()}</small>` : '—', 'last 30 days')
+      : tile('Avg. pace', d ? fmtPace(sec / d) + `<small>${PU()}</small>` : '—', 'last 30 days');
+  }
+  const C_ = cardioCache(), recTypes = f === 'all' ? present : [f];
+  const recRows = type => {
+    const b = C_.best[type] || {}, rows = ['dist','pace','speed','k5','k10','elev'].filter(k => b[k]).map(k => {
+      const r = cardioRecText(k, b[k].v, type), a = S.cardio.find(x => x.id === b[k].id);
+      return `<button class="row tap" data-a="cardio" data-id="${esc(a.id)}"><span class="rec-ico">${ic('trophy')}</span><div class="grow"><div class="title">${esc(r.label)}</div><div class="sub">${new Date(a.start).toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' })}</div></div><span class="trail num">${esc(r.text)}${chev()}</span></button>`;
+    });
+    const bw = bestWeek(type);
+    if(bw) rows.push(`<div class="row"><span class="rec-ico muted">${ic('calendar')}</span><div class="grow"><div class="title">Best week</div><div class="sub">Week of ${new Date(bw.w).toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' })}</div></div><span class="trail num">${fmtDist(bw.v)} ${DU()}</span></div>`);
+    return rows.join('');
+  };
+  const trend = f !== 'all' ? list.filter(a => a.dist > 0 && a.dur > 0) : [];
+  const recent = list.slice(-5).reverse();
+  v.innerHTML = `${head}
+    ${present.length > 1 ? `<div class="chips" style="margin-top:0;margin-bottom:12px">${['all', ...present].map(k => `<button class="chip ${f === k ? 'on' : ''}" data-a="cardio-filter" data-v="${k}">${k === 'all' ? 'All' : CT[k].pick}</button>`).join('')}</div>` : ''}
+    <div class="tiles">
+      ${tile('This week', tDist(sumDist(wkL)), countW(wkL.length))}
+      ${tile('This month', tDist(sumDist(moL)), countW(moL.length))}
+      ${tile('Total distance', tDist(sumDist(list)), 'since ' + new Date(list[0].start).toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' }))}
+      ${t4}
+    </div>
+    <button class="btn btn-block btn-tinted" style="margin-top:12px" data-a="log-cardio">${ic('plus')} Log Cardio</button>
+    <div class="section-h"><h2>Weekly distance</h2><span class="small muted">last 12 weeks · ${DU()}</span></div>
+    <div class="card"><div class="chart" id="cd-wk-chart"></div>${f === 'all' && present.length > 1 ? `<div class="legend">${STACK.filter(k => present.includes(k)).map(k => `<span><i style="background:${CT[k].c}"></i>${CT[k].pick}</span>`).join('')}</div>` : ''}</div>
+    ${trend.length > 1 ? `<div class="section-h"><h2>${CT[f].speed ? 'Speed' : 'Pace'}</h2><span class="small muted">${CT[f].speed ? SU() + ' · higher is faster' : 'min' + PU() + ' · higher is faster'}</span></div>
+      <div class="card"><div class="chart" id="cd-trend-chart"></div></div>` : ''}
+    <div class="section-h"><h2>Records</h2></div>
+    ${recTypes.map(k => `${recTypes.length > 1 ? `<div class="group-h">${CT[k].pick}</div>` : ''}<div class="list">${recRows(k)}</div>`).join('')}
+    ${list.some(a => a.indoor) ? `<div class="caption">Treadmill and indoor sessions count toward distance but not pace or speed records.</div>` : ''}
+    <div class="section-h"><h2>Recent</h2><button class="link" data-a="tab" data-tab="history">History</button></div>
+    <div class="list">${recent.map(a => { const rp = rateParts(a); return `<button class="row tap" data-a="cardio" data-id="${esc(a.id)}">${cico(a.type)}<div class="grow"><div class="title">${esc(cardioName(a))}</div><div class="sub">${relDay(a.start)}${a.dur ? ' · ' + fmtHMS(a.dur) : ''}${rp ? ` · ${rp.v} ${rp.u}` : ''}</div></div><span class="trail num">${a.dist ? fmtDist(a.dist) + ' ' + DU() : ''}${chev()}</span></button>`; }).join('')}</div>`;
+
+  const weeks = [];
+  for(let i = 11; i >= 0; i--){
+    const a = addDays(ws, -7*i), b = addDays(a, 7), inW = list.filter(x => { const d = new Date(x.start); return d >= a && d < b; });
+    const parts = STACK.filter(k => f === 'all' ? present.includes(k) : k === f).map(k => ({ c:CT[k].c, label:CT[k].pick, v:toDist(sumDist(inW.filter(x => x.type === k))) }));
+    weeks.push({ label: i === 0 ? 'This wk' : a.toLocaleDateString(undefined, { day:'numeric', month:'short' }), tip: i === 0 ? 'This week' : 'Week of ' + a.toLocaleDateString(undefined, { day:'numeric', month:'short' }), value:parts.reduce((x, p) => x + p.v, 0), parts });
+  }
+  barChart($('#cd-wk-chart'), weeks, { fmt: x => fmtNum(x, 1) + ' ' + DU(), aria:'Weekly distance bar chart' });
+  const el = $('#cd-trend-chart');
+  if(el){
+    const sp = CT[f].speed;
+    lineChart(el, trend.map(a => ({ x:+new Date(a.start), y: sp ? toDist(speedOf(a)) : paceOf(a) * (DU() === 'mi' ? MI : 1), sub: (a.dist ? fmtDist(a.dist) + ' ' + DU() : '') + (a.indoor ? ' · ' + CT[a.type].indoor : '') })),
+      { fmt: y => sp ? fmtNum(y, 1) + ' ' + SU() : fmtClock(y) + ' ' + PU(), axis: sp ? undefined : y => fmtClock(y), color:CT[f].c, invert:!sp });
+  }
+}
+
+function exportCardioCSV(){
+  if(!S.cardio.length){ toast('No cardio logged yet'); return; }
+  const du = DU(), rows = [['Date','Time','Type','Distance (' + du + ')','Duration','Duration (min)','Pace (min/' + du + ')','Speed (' + SU() + ')','Effort','Avg HR (bpm)','Elevation gain (' + EU() + ')','Calories (kcal)','Indoor','Notes']];
+  for(const a of cardioCache().sorted){
+    const p = paceOf(a), sp = speedOf(a);
+    rows.push([dayKey(new Date(a.start)), fmtTime(a.start), CT[a.type].pick, a.dist ? fmtDist(a.dist) : '', a.dur ? fmtHMS(a.dur) : '', a.dur ? fmtNum(a.dur/60, 1) : '', p ? fmtPace(p) : '', sp ? fmtSpeed(sp) : '',
+      a.effort ? EFFORT[a.effort].label : '', a.hr || '', a.elev ? Math.round(toElev(a.elev)) : '', a.cal || '', a.indoor ? 'Yes' : '', a.notes || '']);
+  }
+  saveFile(`irontrack-cardio-${dayKey(new Date())}.csv`, toCSV(rows), 'text/csv').then(ok => { if(ok) toast('Cardio exported'); });
+}
+
+/* =========================================================
    Exercises tab
    ========================================================= */
 function exListHTML(){
@@ -2401,7 +2867,8 @@ function renderSettings(){
   v.innerHTML = `<div class="topbar"></div><h1 class="large-title">Settings</h1>
     <div class="group-h">Units</div>
     <div class="list"><div class="row has-ico">${sico('scale','#5e5ce6')}<span class="grow">Weight unit</span><div class="seg" style="width:120px"><button data-a="unit" data-v="kg" class="${u === 'kg' ? 'on' : ''}">kg</button><button data-a="unit" data-v="lb" class="${u === 'lb' ? 'on' : ''}">lb</button></div></div>
-      <div class="row has-ico">${sico('ruler','#5e5ce6')}<span class="grow">Measurements</span><div class="seg" style="width:120px"><button data-a="len-unit" data-v="cm" class="${st.lenUnit === 'cm' ? 'on' : ''}">cm</button><button data-a="len-unit" data-v="in" class="${st.lenUnit === 'in' ? 'on' : ''}">in</button></div></div></div>
+      <div class="row has-ico">${sico('ruler','#5e5ce6')}<span class="grow">Measurements</span><div class="seg" style="width:120px"><button data-a="len-unit" data-v="cm" class="${st.lenUnit === 'cm' ? 'on' : ''}">cm</button><button data-a="len-unit" data-v="in" class="${st.lenUnit === 'in' ? 'on' : ''}">in</button></div></div>
+      <div class="row has-ico">${sico('run','#5e5ce6')}<span class="grow">Distance</span><div class="seg" style="width:120px"><button data-a="dist-unit" data-v="km" class="${DU() === 'km' ? 'on' : ''}">km</button><button data-a="dist-unit" data-v="mi" class="${DU() === 'mi' ? 'on' : ''}">mi</button></div></div></div>
     <div class="group-h">Rest timer</div>
     <div class="list">
       <div class="row has-ico">${sico('timer','#0a84ff')}<span class="grow">Default rest</span><div class="stepper"><button data-a="rest-step" data-d="-15" aria-label="Less rest">−</button><span>${fmtClock(st.rest)}</span><button data-a="rest-step" data-d="15" aria-label="More rest">+</button></div></div>
@@ -2435,11 +2902,12 @@ function renderSettings(){
       <button class="row tap has-ico" data-a="import-file">${sico('upload','#0a84ff')}<span class="grow">Import backup file</span>${chev()}</button>
       <button class="row tap has-ico" data-a="paste-code">${sico('paste','#0a84ff')}<span class="grow">Paste backup code</span>${chev()}</button>
       <button class="row tap has-ico" data-a="export-csv">${sico('table','#5e5ce6')}<span class="grow">Export workouts (CSV)</span>${chev()}</button>
+      <button class="row tap has-ico" data-a="export-cardio-csv">${sico('table','#0a84ff')}<span class="grow">Export cardio (CSV)</span>${chev()}</button>
       <button class="row tap has-ico" data-a="export-body-csv">${sico('table','#bf5af2')}<span class="grow">Export body metrics (CSV)</span>${chev()}</button>
     </div>
-    <div class="caption">Your workouts and measurements are saved in this browser on this device only. Last backup: <b>${st.lastBackup ? relDay(st.lastBackup).toLowerCase() : 'never'}</b>. Save a backup file to iCloud Drive regularly so nothing gets lost.</div>
+    <div class="caption">Your workouts, cardio and measurements are saved in this browser on this device only. Last backup: <b>${st.lastBackup ? relDay(st.lastBackup).toLowerCase() : 'never'}</b>. Save a backup file to iCloud Drive regularly so nothing gets lost.</div>
     <div class="list" style="margin-top:24px"><button class="row tap red" data-a="erase"><span class="grow center">Erase All Data</span></button></div>
-    <div class="caption center" style="margin-top:24px">IronTrack 4.4.1 · ${plural(S.sessions.length,'workout')} · ${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
+    <div class="caption center" style="margin-top:24px">IronTrack 4.5 · ${plural(S.sessions.length,'workout')} · ${S.cardio.length ? S.cardio.length + ' cardio · ' : ''}${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
   v.onchange = e => {
     const k = e.target.dataset.set; if(!k) return;
     S.settings[k] = e.target.checked; save();
@@ -2475,7 +2943,7 @@ function openPlates(kg){
 /* =========================================================
    Backup, import, CSV
    ========================================================= */
-function backupJSON(){ return JSON.stringify({ app:'IronTrack', version:4, exportedAt:new Date().toISOString(), data:{ settings:S.settings, exercises:S.exercises, routines:S.routines, sessions:S.sessions, body:S.body } }); }
+function backupJSON(){ return JSON.stringify({ app:'IronTrack', version:4, exportedAt:new Date().toISOString(), data:{ settings:S.settings, exercises:S.exercises, routines:S.routines, sessions:S.sessions, body:S.body, cardio:S.cardio } }); }
 function markBackup(){ S.settings.lastBackup = new Date().toISOString(); save(); if(ui.tab === 'settings' || ui.tab === 'workout') render(); }
 async function saveFile(name, text, type){
   const blob = new Blob([text], { type });
@@ -2506,21 +2974,22 @@ function parseBackup(text){
   let o;
   try { o = JSON.parse(String(text).trim()); } catch(e){ throw new Error('That doesn’t look like IronTrack backup data.'); }
   if(o && o.data && Array.isArray(o.data.sessions)) o = o.data;
-  if(o && Array.isArray(o.sessions)){ const n = normalize(o); return { exercises:n.exercises, sessions:n.sessions, routines:n.routines, settings:o.settings ? n.settings : null, body:o.body ? n.body : null }; }
-  if(o && Array.isArray(o.history) && Array.isArray(o.exercises)){ const c = fromV3(o); return { exercises:c.exercises, sessions:c.sessions, routines:[], settings:null, body:null }; }
+  if(o && Array.isArray(o.sessions)){ const n = normalize(o); return { exercises:n.exercises, sessions:n.sessions, routines:n.routines, settings:o.settings ? n.settings : null, body:o.body ? n.body : null, cardio:Array.isArray(o.cardio) ? n.cardio : null }; }
+  if(o && Array.isArray(o.history) && Array.isArray(o.exercises)){ const c = fromV3(o); return { exercises:c.exercises, sessions:c.sessions, routines:[], settings:null, body:null, cardio:null }; }
   throw new Error('No workouts were found in that data.');
 }
 async function importText(text){
   let p;
   try { p = parseBackup(text); } catch(e){ dialog({ title:'Couldn’t import', message:e.message }); return; }
-  const bodyN = p.body ? p.body.entries.length : 0;
-  const k = await dialog({ title:'Import backup', message:`Found ${plural(p.sessions.length,'workout')}, ${plural(p.exercises.length,'exercise')}, ${plural(p.routines.length,'routine')}${bodyN ? ` and ${bodyN} body ${bodyN === 1 ? 'entry' : 'entries'}` : ''}.`,
+  const bodyN = p.body ? p.body.entries.length : 0, cardN = p.cardio ? p.cardio.length : 0;
+  const k = await dialog({ title:'Import backup', message:`Found ${plural(p.sessions.length,'workout')}, ${plural(p.exercises.length,'exercise')}, ${plural(p.routines.length,'routine')}${cardN ? `${bodyN ? ',' : ' and'} ${cardN} cardio ${cardN === 1 ? 'activity' : 'activities'}` : ''}${bodyN ? ` and ${bodyN} body ${bodyN === 1 ? 'entry' : 'entries'}` : ''}.`,
     buttons:[{ k:'merge', label:'Merge With My Data', bold:true }, { k:'replace', label:'Replace All My Data', red:true }, { k:'cancel', label:'Cancel' }] });
   if(k === 'replace'){
     if(!(await confirmDlg('Replace everything?', 'Your current workouts, exercises and routines will be overwritten by the backup.', 'Replace'))) return;
     S.exercises = p.exercises.length ? p.exercises : S.exercises; S.sessions = p.sessions; S.routines = p.routines;
     if(p.settings) S.settings = { ...p.settings, lastBackup:S.settings.lastBackup };
     if(p.body) S.body = p.body;
+    if(p.cardio) S.cardio = p.cardio;
   } else if(k === 'merge'){
     const remap = {};
     for(const e of p.exercises){
@@ -2534,6 +3003,9 @@ async function importText(text){
     for(const s of p.sessions){ if(ids.has(s.id)) continue; s.entries.forEach(e => { e.exId = fix(e.exId); }); S.sessions.push(s); added++; }
     const rids = new Set(S.routines.map(r => r.id));
     for(const r of p.routines){ if(rids.has(r.id)) continue; r.items.forEach(i => { i.exId = fix(i.exId); }); S.routines.push(r); }
+    const cids = new Set(S.cardio.map(a => a.id));
+    let addedC = 0;
+    for(const a of p.cardio || []){ if(cids.has(a.id)) continue; S.cardio.push(a); addedC++; }
     if(p.body){
       for(const e of p.body.entries){
         const mine = S.body.entries.find(x => x.date === e.date);
@@ -2543,7 +3015,7 @@ async function importText(text){
       if(!S.body.height && p.body.height) S.body.height = p.body.height;
       S.body.track = BODY_METRICS.map(m => m.k).filter(k => S.body.track.includes(k) || p.body.track.includes(k));
     }
-    save(); refresh(); toast(`Merged — ${plural(added,'new workout')} added`); return;
+    save(); refresh(); toast(`Merged — ${plural(added,'new workout')}${addedC ? ` and ${addedC} cardio` : ''} added`); return;
   } else return;
   save(); refresh(); toast('Backup restored');
 }
@@ -2570,7 +3042,7 @@ function exportBodyCSV(){
   saveFile(`irontrack-body-${dayKey(new Date())}.csv`, toCSV(rows), 'text/csv').then(ok => { if(ok) toast('Body metrics exported'); });
 }
 async function eraseAll(){
-  if(!(await confirmDlg('Erase all data?', 'Every workout, exercise, routine and body measurement will be deleted from this device. This can’t be undone — export a backup first if you might want it.', 'Erase Everything'))) return;
+  if(!(await confirmDlg('Erase all data?', 'Every workout, cardio activity, exercise, routine and body measurement will be deleted from this device. This can’t be undone — export a backup first if you might want it.', 'Erase Everything'))) return;
   const settings = S.settings;
   S = freshState(); S.settings = settings; S.exercises = defaultExercises(); addStarterRoutines(S.exercises, S.routines);
   rest.end = 0; rest.doneUntil = 0;
@@ -2682,6 +3154,16 @@ const ACT = {
   'body-nudge-x': () => { prefSet('it_body_nudge', String(Date.now())); render(); },
   metric: t => openMetric(t.dataset.k),
   'export-body-csv': () => exportBodyCSV(),
+  'log-cardio': () => openCardioLog(null),
+  'cardio-progress': () => { ui.progView = 'cardio'; setTab('progress'); },
+  cardio: t => openCardio(t.dataset.id),
+  'cardio-filter': t => { ui.cardioType = t.dataset.v; render(); },
+  'dist-unit': t => { S.settings.distUnit = t.dataset.v; save(); render(); },
+  'export-cardio-csv': () => exportCardioCSV(),
+  'hist-add': async () => {
+    const k = await actionSheet({ title:'Log something you’ve done', actions:[{ k:'w', label:'Finished Workout' }, { k:'c', label:'Run, Walk, Hike or Ride' }] });
+    if(k === 'w') logFinished(); else if(k === 'c') openCardioLog(null);
+  },
   'add-starters': () => {
     const n = addStarterRoutines(S.exercises, S.routines);
     if(!n){ toast('You already have all the starter routines'); return; }

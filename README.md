@@ -1,6 +1,6 @@
 # IronTrack
 
-A personal workout tracker that runs entirely in the browser — log sets, routines, PRs and progress charts.
+A personal workout tracker that runs entirely in the browser — log sets, routines, runs, walks, hikes and rides, PRs and progress charts.
 
 **Open:** https://ross-lawlor.github.io/irontrack/
 
