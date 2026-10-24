@@ -607,7 +607,6 @@ const toDisp = kg => U()==='lb' ? kg/LB : kg;
 const fromDisp = v => U()==='lb' ? v*LB : v;
 const fmtW = kg => fmtNum(toDisp(kg), U()==='lb' ? 1 : 2);
 const fmtW1 = kg => fmtNum(toDisp(kg), 1);
-const fmtVol = kg => Math.round(toDisp(kg)).toLocaleString();
 function fmtCompact(kg){ const v = toDisp(kg); return v >= 10000 ? fmtNum(v/1000, v>=100000?0:1)+'k' : Math.round(v).toLocaleString(); }
 // Weight first, then reps (matches the KG | REPS input order). unit=false drops the unit for the narrow Previous column.
 const setStr = (s, unit = true) => s.t
@@ -630,6 +629,8 @@ function startOfWeek(d){ const x = new Date(d); x.setHours(0,0,0,0); x.setDate(x
 function addDays(d, n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
 function fmtClock(sec){ sec = Math.max(0, Math.round(sec)); return Math.floor(sec/60) + ':' + pad(sec%60); }
 function fmtDur(ms){ const s = Math.max(0, Math.floor(ms/1000)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60); return h ? `${h}:${pad(m)}:${pad(s%60)}` : `${m}:${pad(s%60)}`; }
+/* Hours and minutes trained, e.g. "4h 20m" or "45 min"; "—" for none. */
+const fmtTrained = sec => sec >= 60 ? fmtDurShort(sec*1000) : '—';
 function fmtDurShort(ms){ const m = Math.max(1, Math.round(ms/60000)); return m < 60 ? m+' min' : Math.floor(m/60)+'h '+pad(m%60)+'m'; }
 function sessDur(s){ return (s.end && !s.legacy) ? new Date(s.end) - new Date(s.start) : null; }
 function relDay(iso){
@@ -899,16 +900,13 @@ function getEx(id){
   return { id, name:'Exercise', cat:'Other', deleted:true };
 }
 const restFor = exId => getEx(exId).rest || S.settings.rest;
-function sessVolume(s){ let v = 0; for(const e of s.entries) for(const x of e.sets) v += (x.w||0)*(x.r||0); return v; }
-function sessWork(s){ let t = 0; for(const e of s.entries) for(const x of e.sets) t += x.t || 0; return t; }
-/* Volume tile, or total work time for sessions that were all timed/bodyweight. */
-function volOrWorkTile(s){ const v = sessVolume(s), t = sessWork(s); return !v && t ? tile('Work time', fmtClock(t)) : tile('Volume', fmtCompact(v) + `<small>${U()}</small>`); }
 function sessSets(s){ return s.entries.reduce((a,e) => a + e.sets.length, 0); }
 function weekStats(offset=0){
   const ws = addDays(startOfWeek(new Date()), -7*offset), we = addDays(ws, 7);
   const inWk = x => { const d = new Date(x.start); return d >= ws && d < we; };
   const list = S.sessions.filter(inWk);
-  return { count:list.length, volume:list.reduce((a,s) => a + sessVolume(s), 0), cardio:S.cardio.filter(inWk).length };
+  const cl = S.cardio.filter(inWk), liftSec = list.reduce((a,s) => a + (sessDur(s) || 0)/1000, 0), cardioSec = cl.reduce((a,c) => a + (c.dur || 0), 0);
+  return { count:list.length, cardio:cl.length, liftSec, cardioSec, time:liftSec + cardioSec };
 }
 function streaks(){
   const weeks = new Set([...S.sessions, ...S.cardio].map(s => +startOfWeek(new Date(s.start))));
@@ -1189,8 +1187,7 @@ function renderWorkout(){
     </div>
     ${!anyAct ? '' : `<div class="tiles three" style="margin-top:12px">
       ${tile('This week', acts, (S.cardio.length ? actWord(acts) : plural(acts,'workout')).replace(/^\d+ /,''), 'data-a="tab" data-tab="progress"')}
-      ${!S.sessions.length ? tile('Distance', fmtNum(toDist(sumDist(S.cardio.filter(x => new Date(x.start) >= startOfWeek(new Date())))), 1) + `<small>${DU()}</small>`, 'this week', 'data-a="cardio-progress"')
-        : tile('Volume', fmtCompact(wk.volume) + `<small>${U()}</small>`, 'this week', 'data-a="tab" data-tab="progress"')}
+      ${tile('Time', fmtTrained(wk.time), 'trained this week', 'data-a="tab" data-tab="progress"')}
       ${tile(`${ic('flame')}Streak`, st.cur + '<small>wk</small>', st.cur ? 'keep it going' : 'start today', 'data-a="tab" data-tab="progress"')}
     </div>`}
     ${needBackup ? `<div class="nudge"><div class="ico">${ic('shield')}</div><div class="grow"><div class="t">Back up your workouts</div><div class="s">Last backup: ${lb ? relDay(lb).toLowerCase() : 'never'}</div></div><button class="btn btn-sm btn-tinted" data-a="export-file">Back Up</button><button class="btn-icon" style="background:none;color:var(--label-3)" data-a="nudge-x" aria-label="Dismiss">${ic('x')}</button></div>` : ''}
@@ -1315,9 +1312,8 @@ function showSummary(sess){
       <div class="done-badge${prs.length?' pr':''}">${ic(prs.length ? 'trophy' : 'check')}</div>
       <h2 class="sheet-h1 center">Workout complete</h2>
       <div class="muted center" style="margin-bottom:18px">${esc(sess.name)}</div>
-      <div class="tiles three">
+      <div class="tiles">
         ${tile('Duration', dur ? fmtDurShort(dur) : '—')}
-        ${volOrWorkTile(sess)}
         ${tile('Sets', sessSets(sess))}
       </div>
       ${prs.length ? `<div class="group-h">${plural(prs.length,'personal record')}</div><div class="list">${prs.map(p => { const t = prText(p); return `<div class="row">${ic('trophy')}<div class="grow"><div class="title">${esc(getEx(p.exId).name)}</div><div class="sub">${esc(t.label)}</div></div><span class="trail num" style="color:var(--orange);font-weight:600">${esc(t.text)}</span></div>`; }).join('')}</div>` : ''}
@@ -1364,7 +1360,7 @@ function renderEditor(ctx){
     : `<span>${ic('calendar')}<input type="datetime-local" class="ed-dt" data-f="start" value="${toLocalInput(d.start)}" aria-label="Start time"></span><span>${ic('clock')}<input class="ed-dt ed-dur" data-f="dur" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${d.durMin || ''}" placeholder="–" aria-label="Duration in minutes"> min</span>`;
   ctx.root.innerHTML = `
     <input class="ed-name" data-f="name" value="${esc(d.name)}" placeholder="Workout name" enterkeyhint="done" autocomplete="off">
-    <div class="ed-meta">${meta}<span>${ic('check')}<b class="m-sets">0</b><span class="m-sets-l">sets</span></span><span>${ic('stack')}<b class="m-vol">0</b> ${U()}</span></div>
+    <div class="ed-meta">${meta}<span>${ic('check')}<b class="m-sets">0</b><span class="m-sets-l">sets</span></span></div>
     ${ctx.hint ? `<div class="ed-hint">${ctx.hint}</div>` : ''}
     ${d.entries.map((en, i) => entryHTML(ctx, en, i)).join('') || `<div class="ed-empty">${ic('dumbbell')}<div>Add an exercise to get started</div></div>`}
     <button class="btn btn-block btn-tinted" data-ed="add-ex">${ic('plus')} Add Exercises</button>
@@ -1435,14 +1431,11 @@ function timedSetHTML(ctx, en, s, j, prev, best){
   </div>`;
 }
 function updateMeta(ctx){
-  let n = 0, vol = 0;
-  for(const e of ctx.draft.entries) for(const s of e.sets){
-    if(ctx.mode === 'edit' ? (s.r > 0 || s.t > 0) : s.done){ n++; vol += (s.w||0) * (s.r||0); }
-  }
-  const a = ctx.root.querySelector('.m-sets'), b = ctx.root.querySelector('.m-vol');
+  let n = 0;
+  for(const e of ctx.draft.entries) for(const s of e.sets){ if(ctx.mode === 'edit' ? (s.r > 0 || s.t > 0) : s.done) n++; }
+  const a = ctx.root.querySelector('.m-sets');
   if(a) a.textContent = n;
   const l = ctx.root.querySelector('.m-sets-l'); if(l) l.textContent = n === 1 ? 'set' : 'sets';
-  if(b) b.textContent = fmtVol(vol);
 }
 function changed(ctx, structural){
   if(structural) renderEditor(ctx); else updateMeta(ctx);
@@ -1962,9 +1955,8 @@ function openSession(id){
         <div class="sheet-body">
           <h2 class="sheet-h1">${esc(sess.name)}</h2>
           <div class="small muted" style="margin-bottom:14px">${fmtLongDate(sess.start)}${time}</div>
-          <div class="tiles three" style="margin-bottom:12px">
+          <div class="tiles" style="margin-bottom:12px">
             ${tile('Duration', dur ? fmtDurShort(dur) : '—')}
-            ${volOrWorkTile(sess)}
             ${tile('Sets', sessSets(sess))}
           </div>
           ${prs.length ? `<div class="card" style="padding:10px 14px;margin-bottom:12px">${prs.map(p => { const t = prText(p); return `<div class="pr-line">${ic('trophy')}<span class="grow"><b>${esc(getEx(p.exId).name)}</b> <span class="muted small">${esc(t.label)}</span></span><span class="num" style="color:var(--orange);font-weight:600">${esc(t.text)}</span></div>`; }).join('')}</div>` : ''}
@@ -2060,7 +2052,7 @@ function sessCard(s, prs){
   const ex = s.entries.slice(0, 4).map(e => { const b = entryBest(e.sets); return `<div><span class="faint num">${e.sets.length} ×</span> ${esc(e.name)} <span class="faint">${bestLabel(b) ? '· ' + bestLabel(b) : ''}</span></div>`; }).join('');
   return `<button class="sess" data-a="sess" data-id="${esc(s.id)}">
     <div class="sess-top"><span class="sess-name">${esc(s.name)}</span><span class="sess-date">${d.toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short' })}</span></div>
-    <div class="sess-stats">${dur ? `<span>${ic('clock')}${fmtDurShort(dur)}</span>` : ''}${!sessVolume(s) && sessWork(s) ? `<span>${ic('timer')}${fmtClock(sessWork(s))} work</span>` : `<span>${ic('stack')}${fmtVol(sessVolume(s))} ${U()}</span>`}<span>${ic('check')}${plural(sessSets(s),'set')}</span>${prs ? `<span class="badge">${ic('trophy')}${plural(prs.length,'PR')}</span>` : ''}</div>
+    <div class="sess-stats">${dur ? `<span>${ic('clock')}${fmtDurShort(dur)}</span>` : ''}<span>${ic('check')}${plural(sessSets(s),'set')}</span>${prs ? `<span class="badge">${ic('trophy')}${plural(prs.length,'PR')}</span>` : ''}</div>
     <div class="sess-ex">${ex}${s.entries.length > 4 ? `<div class="faint">+${s.entries.length - 4} more</div>` : ''}</div>
   </button>`;
 }
@@ -2114,7 +2106,7 @@ function renderProgress(){
   if(!S.sessions.length){ v.innerHTML = head + emptyHTML('chart', 'No stats yet', 'Finish your first workout and your trends, records and streaks will appear here.', `<button class="btn btn-primary" data-a="tab" data-tab="workout">Start a Workout</button>`); return; }
   const now = new Date(), st = streaks(), wk = weekStats(), lw = weekStats(1);
   const monthCount = S.sessions.filter(s => { const d = new Date(s.start); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).length;
-  const change = lw.volume ? Math.round((wk.volume - lw.volume) / lw.volume * 100) : null;
+  const change = lw.time ? Math.round((wk.time - lw.time) / lw.time * 100) : null;
   const recent = S.sessions.filter(s => now - new Date(s.start) < 30*864e5);
   const durs = recent.map(sessDur).filter(Boolean);
   const avgDur = durs.length ? durs.reduce((a,b) => a+b, 0) / durs.length : null;
@@ -2131,13 +2123,13 @@ function renderProgress(){
     <div class="tiles">
       ${tile('Workouts', S.sessions.length, `${monthCount} this month`)}
       ${tile(`${ic('flame')}Week streak`, st.cur + '<small>wk</small>', `best ${st.best} wk`)}
-      ${tile('Volume this week', fmtCompact(wk.volume) + `<small>${U()}</small>`, change == null ? `${plural(wk.count,'workout')}` : `${change >= 0 ? '▲' : '▼'} ${Math.abs(change)}% vs last week`)}
+      ${tile('Time this week', fmtTrained(wk.time), change == null ? 'workouts and cardio' : `${change >= 0 ? '▲' : '▼'} ${Math.abs(change)}% vs last week`)}
       ${tile('Avg. duration', avgDur ? fmtDurShort(avgDur) : '—', 'last 30 days')}
     </div>
     <div class="section-h"><h2>Calendar</h2></div>
     <div id="cal-wrap">${calendarHTML()}</div>
-    <div class="section-h"><h2>Weekly volume</h2><span class="small muted">last 12 weeks · ${U()}</span></div>
-    <div class="card"><div class="chart" id="wk-chart"></div></div>
+    <div class="section-h"><h2>Time trained</h2><span class="small muted">last 12 weeks · hours</span></div>
+    <div class="card"><div class="chart" id="wk-chart"></div>${S.cardio.length ? `<div class="legend"><span><i style="background:${WK_COLORS.lift}"></i>Workouts</span><span><i style="background:${WK_COLORS.cardio}"></i>Cardio</span></div>` : ''}</div>
     <div class="section-h"><h2>Muscle groups</h2><span class="small muted">sets · last 30 days</span></div>
     <div class="card">${gList.length ? gList.map(([c, n]) => `<div class="hbar"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${(n/gMax*100).toFixed(1)}%"></div></div><span class="val">${n}</span></div>`).join('') : '<div class="small muted">No sets logged in the last 30 days.</div>'}</div>
     <div class="section-h"><h2>Top lifts</h2><button class="link" data-a="tab" data-tab="exercises">All</button></div>
@@ -2146,12 +2138,15 @@ function renderProgress(){
   const ws = startOfWeek(now), weeks = [];
   for(let i = 11; i >= 0; i--){
     const a = addDays(ws, -7*i), b = addDays(a, 7);
-    const vol = S.sessions.filter(s => { const d = new Date(s.start); return d >= a && d < b; }).reduce((x, s) => x + sessVolume(s), 0);
-    weeks.push({ label: i === 0 ? 'This wk' : a.toLocaleDateString(undefined, { day:'numeric', month:'short' }), tip: i === 0 ? 'This week' : 'Week of ' + a.toLocaleDateString(undefined, { day:'numeric', month:'short' }), value: toDisp(vol) });
+    const w = weekStats(Math.round((ws - a) / (7*864e5)));
+    const parts = [{ v:w.liftSec/3600, c:WK_COLORS.lift, label:'Workouts' }, { v:w.cardioSec/3600, c:WK_COLORS.cardio, label:'Cardio' }];
+    weeks.push({ label: i === 0 ? 'This wk' : a.toLocaleDateString(undefined, { day:'numeric', month:'short' }), tip: i === 0 ? 'This week' : 'Week of ' + a.toLocaleDateString(undefined, { day:'numeric', month:'short' }), value:w.time/3600, parts });
   }
-  barChart($('#wk-chart'), weeks, { fmt: v => Math.round(v).toLocaleString() + ' ' + U() });
+  barChart($('#wk-chart'), weeks, { fmt: v => fmtTrained(v*3600), aria:'Weekly time trained bar chart' });
 }
 
+/* Weekly time trained: lifting in the accent colour, cardio in teal. */
+const WK_COLORS = { lift:'#0a84ff', cardio:'#66d4cf' };
 /* ---------- Charts (inline SVG, single hue, hover/tap tooltips) ---------- */
 function niceScale(min, max, n=4){
   if(min === max){ min = Math.max(0, min - 1); max = max + 1; }
@@ -2907,7 +2902,7 @@ function renderSettings(){
     </div>
     <div class="caption">Your workouts, cardio and measurements are saved in this browser on this device only. Last backup: <b>${st.lastBackup ? relDay(st.lastBackup).toLowerCase() : 'never'}</b>. Save a backup file to iCloud Drive regularly so nothing gets lost.</div>
     <div class="list" style="margin-top:24px"><button class="row tap red" data-a="erase"><span class="grow center">Erase All Data</span></button></div>
-    <div class="caption center" style="margin-top:24px">IronTrack 4.5 · ${plural(S.sessions.length,'workout')} · ${S.cardio.length ? S.cardio.length + ' cardio · ' : ''}${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
+    <div class="caption center" style="margin-top:24px">IronTrack 4.6 · ${plural(S.sessions.length,'workout')} · ${S.cardio.length ? S.cardio.length + ' cardio · ' : ''}${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
   v.onchange = e => {
     const k = e.target.dataset.set; if(!k) return;
     S.settings[k] = e.target.checked; save();
