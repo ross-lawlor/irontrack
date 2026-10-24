@@ -1187,7 +1187,7 @@ function renderWorkout(){
     </div>
     ${!anyAct ? '' : `<div class="tiles three" style="margin-top:12px">
       ${tile('This week', acts, (S.cardio.length ? actWord(acts) : plural(acts,'workout')).replace(/^\d+ /,''), 'data-a="tab" data-tab="progress"')}
-      ${tile('Time', fmtTrained(wk.time), 'trained this week', 'data-a="tab" data-tab="progress"')}
+      ${tile('Time', fmtTrained(wk.time), 'this week', 'data-a="tab" data-tab="progress"')}
       ${tile(`${ic('flame')}Streak`, st.cur + '<small>wk</small>', st.cur ? 'keep it going' : 'start today', 'data-a="tab" data-tab="progress"')}
     </div>`}
     ${needBackup ? `<div class="nudge"><div class="ico">${ic('shield')}</div><div class="grow"><div class="t">Back up your workouts</div><div class="s">Last backup: ${lb ? relDay(lb).toLowerCase() : 'never'}</div></div><button class="btn btn-sm btn-tinted" data-a="export-file">Back Up</button><button class="btn-icon" style="background:none;color:var(--label-3)" data-a="nudge-x" aria-label="Dismiss">${ic('x')}</button></div>` : ''}
