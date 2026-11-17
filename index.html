@@ -6,13 +6,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="IronTrack">
-<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-title" content="Rep by Rep">
+<meta name="theme-color" content="#0b0c0f">
 <meta name="color-scheme" content="dark">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<title>IronTrack</title>
+<title>Rep by Rep RSA</title>
 <style>
 :root{
   --bg:#000;
@@ -268,6 +268,16 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}
 .sess-stats svg{width:14px;height:14px}
 .sess-ex{font-size:14px;line-height:1.55}
 .sess-ex div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* History card with the exercise list folded away (5.0) */
+.sess-open{display:block;width:100%;text-align:left}
+.sess-open .sess-stats{margin-bottom:0}
+.sess-more{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin-top:10px;padding-top:10px;border-top:1px solid var(--sep);font-size:13px;color:var(--label-2);text-align:left}
+.sess-more svg{width:14px;height:14px;flex:none;transition:transform .2s}
+.sess-fold.open .sess-more svg{transform:rotate(90deg)}
+.sess-fold .sess-ex{margin-top:8px}
+.prog-nudges{margin-bottom:12px}
+.prog-steps{margin-bottom:12px}
+.prog-steps .wsteps{margin-top:0}
 
 /* ---------- Detail sheets ---------- */
 .sheet-h1{font-size:28px;font-weight:700;margin:2px 0 6px;letter-spacing:.2px;line-height:1.2}
@@ -508,6 +518,502 @@ textarea.alert-input{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 .empty svg{width:46px;height:46px;color:var(--label-3);margin-bottom:12px}
 .empty h3{color:var(--label);font-size:20px;margin-bottom:6px}
 .empty .btn{margin-top:18px}
+
+/* Fonts ship with the app (fonts/, SIL Open Font License), so it never contacts a font service and works offline. */
+@font-face{font-family:"Archivo";font-style:normal;font-weight:100 900;font-stretch:62% 125%;font-display:swap;src:url("fonts/archivo.woff2") format("woff2")}
+@font-face{font-family:"Archivo";font-style:italic;font-weight:100 900;font-stretch:62% 125%;font-display:swap;src:url("fonts/archivo-italic.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:100 800;font-display:swap;src:url("fonts/jetbrains-mono.woff2") format("woff2")}
+/* =========================================================
+   Rep by Rep RSA look ("Iron & Volt"), from 5.0.
+   Every session is one step up: the staircase from the logo runs through the app (the week
+   drawn as stairs, numbered routine steps, stair-shaped dots). Iron surfaces, one loud colour
+   (volt, or the accent picked in Settings), bone text.
+   Colours   iron #14161a · volt #c6f135 · bone #f4f5ef · steel #4b5563
+             flare #ff8a3d (records) · ice #5fe3ff (rest and timers)
+   Type      Archivo (wide for headlines, narrow for big numbers), JetBrains Mono (labels)
+   Sections  1 tokens · 2 base and type · 3 surfaces · 4 buttons · 5 tab bar and dock
+             6 Workout tab · 7 workout in progress · 8 history and progress · 9 sheets
+             13 settings · 14 motion preferences · 15 accent choices · 16 what's new and recap
+   ========================================================= */
+/* ---------- 1. Tokens ---------- */
+@property --sx-in{syntax:"<number>";inherits:true;initial-value:1}
+:root{
+  --volt:#c6f135; --volt-hi:#e4ff7a; --volt-lo:#9ccb16; --ice:#5fe3ff; --flare:#ff8a3d;
+  --volt-rgb:198,241,53; --volt-hi-rgb:228,255,122; --flare-rgb:255,138,61; --volt-top:#deff5c; --volt-bot:#a8d81f;
+  --bone:#f4f5ef; --steel:#4b5563; --iron:#14161a;
+  --bg:#0b0c0f; --card:#14161a; --card-2:#1b1e24; --card-3:#272b33;
+  --label:#f4f5ef; --label-2:rgba(244,245,239,.68); --label-3:rgba(244,245,239,.5);
+  --sep:rgba(110,122,140,.28); --fill:rgba(120,132,150,.22); --fill-2:rgba(120,132,150,.13);
+  --accent:var(--volt); --accent-soft:rgba(var(--volt-rgb),.13); --on-accent:#0d1004;
+  --blue:var(--volt); --blue-soft:rgba(var(--volt-rgb),.13);
+  --green:var(--volt); --green-soft:rgba(var(--volt-rgb),.12); --on-green:#0d1004;
+  --orange:var(--flare); --orange-soft:rgba(var(--flare-rgb),.15);
+  --red:#ff5468; --red-soft:rgba(255,84,104,.14);
+  --r:20px; --tab-h:78px;
+  --line:rgba(255,255,255,.07); --line-volt:rgba(var(--volt-rgb),.32);
+  --f-disp:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --g-volt:linear-gradient(180deg,var(--volt-top) 0%,var(--volt) 45%,var(--volt-bot) 100%);
+  --g-card:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,0) 46%);
+  --sh-card:inset 0 1px 0 rgba(255,255,255,.05),0 18px 34px -24px #000;
+  --sh-volt:0 0 0 1px rgba(var(--volt-rgb),.55),0 12px 30px -10px rgba(var(--volt-rgb),.6),inset 0 1px 0 rgba(255,255,255,.65),inset 0 -2px 0 rgba(0,0,0,.16);
+  --stairs:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M0 27.5h14v-14h14' fill='none' stroke='%23c6f135' stroke-width='1'/%3E%3C/svg%3E");
+  --stair-xl:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpath d='M0 290h50v-50h50v-50h50v-50h50v-50h50v-50h50' fill='none' stroke='%23c6f135' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E");
+}
+
+/* ---------- 2. Base and type ---------- */
+html,body{background:var(--bg)}
+body{font-family:var(--f-disp);font-weight:500;font-size:16px;letter-spacing:.005em}
+/* The room: a volt glow from the top left, a cold one low on the right, a faint grid and film grain. */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:
+  var(--grain),
+  radial-gradient(70% 42% at 8% -6%,rgba(var(--volt-rgb),.13),transparent 70%),
+  radial-gradient(60% 40% at 108% 38%,rgba(95,227,255,.06),transparent 70%),
+  linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px) 0 0/100% 34px,
+  linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px) 0 0/34px 100%,
+  var(--bg)}
+::selection{background:var(--volt);color:var(--on-accent)}
+:focus-visible{outline:2px solid var(--volt);outline-offset:2px}
+b,strong,.title{font-weight:700}
+.num,.tile .v,.rest-time,.iv-time,.cd-clock{font-variant-numeric:tabular-nums}
+.muted{color:var(--label-2)}
+.large-title{font:italic 900 31px/.98 var(--f-disp);font-stretch:125%;text-transform:uppercase;letter-spacing:-.015em;margin:4px 0 18px;text-wrap:balance}
+.section-h{margin:34px 2px 12px;align-items:center;gap:12px}
+.section-h h2{display:flex;align-items:center;gap:10px;flex:1;min-width:0;font:800 15px/1.1 var(--f-disp);font-stretch:118%;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.section-h h2::before{content:"";flex:none;width:14px;height:14px;background:var(--volt);clip-path:polygon(0 100%,0 66%,33% 66%,33% 33%,66% 33%,66% 0,100% 0,100% 100%)}
+.section-h h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--sep),transparent)}
+.link{flex:none;font:700 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--volt);padding:9px 12px;border:1px solid var(--line-volt);border-radius:10px;background:var(--accent-soft)}
+.link:active{background:var(--volt);color:var(--on-accent)}
+.group-h,.lbl,.month-h{font:700 10.5px/1.2 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--label-2)}
+.group-h{margin:28px 6px 9px}
+.group-h::before,.lbl::before{content:"/ ";color:var(--volt)}
+.month-h{margin:26px 6px 10px}
+.month-h span:last-child{color:var(--volt)}
+.caption{font-size:12.5px;line-height:1.5;margin:10px 6px 0}
+.small{font-size:13px}
+.tag,.badge{font:700 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:7px}
+.back-btn{display:inline-flex;align-items:center;gap:4px;color:var(--volt);font:700 11.5px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;padding:10px 12px 10px 6px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.back-btn svg{width:18px;height:18px}
+
+/* A page arrives: everything settles upward together, the lower things travel further.
+   Driven by one number on the view (--sx-in, 0 to 1), so re-drawing the page never replays it. */
+.view.active{animation:fade .3s ease,sx-in .75s var(--ease)}
+@keyframes sx-in{from{--sx-in:0}to{--sx-in:1}}
+.view > *{translate:0 calc((1 - var(--sx-in)) * var(--sx-d,16px))}
+.view > :nth-child(2){--sx-d:28px}.view > :nth-child(3){--sx-d:42px}.view > :nth-child(4){--sx-d:58px}
+.view > :nth-child(5){--sx-d:76px}.view > :nth-child(n+6){--sx-d:96px}
+
+/* ---------- 3. Surfaces ---------- */
+.card,.list,.tile,.routine,.sess,.ex-card,.nudge,.quick,.chal-more,.wsteps{background:var(--g-card),var(--card);border:1px solid var(--line);box-shadow:var(--sh-card);border-radius:var(--r)}
+.sheet .tile,.sheet .card,.sheet .list,.sheet .ex-card{background:var(--g-card),var(--card-2);border-color:rgba(255,255,255,.08)}
+.row{padding:13px 16px;min-height:54px}
+.list > .row:not(:last-child)::after{left:16px;right:16px;height:1px;background:linear-gradient(90deg,var(--sep),rgba(110,122,140,.08))}
+.list > .row.has-ico:not(:last-child)::after{left:62px}
+.sheet .list > .row:not(:last-child)::after{background:linear-gradient(90deg,var(--sep),rgba(110,122,140,.08))}
+.row .title{font-size:16px;font-weight:700}
+.row .sub{font-size:12.5px}
+.row .trail{font:500 12.5px/1.2 var(--f-mono);color:var(--label-2)}
+.row.tap:active,.sheet .row.tap:active{background:rgba(var(--volt-rgb),.07)}
+.row.red{color:var(--red);font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:13px}
+.chev{color:var(--volt);opacity:.7}
+.set-ico{width:34px;height:34px;border-radius:11px;background:linear-gradient(160deg,#252a31,#16181c)!important;border:1px solid rgba(255,255,255,.08);color:var(--volt);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.empty svg{color:var(--volt);opacity:.6}
+.empty h3{font:800 18px/1.2 var(--f-disp);font-stretch:118%;text-transform:uppercase}
+
+/* Tiles: mono label, narrow heavy number, a volt tick on the edge */
+.tiles{gap:10px}
+.tile{position:relative;padding:14px 14px 13px 16px;overflow:hidden}
+.tile::before{content:"";position:absolute;left:0;top:16px;width:3px;height:18px;border-radius:0 3px 3px 0;background:var(--volt);box-shadow:0 0 12px rgba(var(--volt-rgb),.7)}
+.tile[data-a]:active{background:var(--card-2);transform:scale(.98)}
+.tile{transition:transform .15s var(--ease)}
+.tile .k{font:700 10px/1.2 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--label-2);gap:5px}
+.tile .k svg{color:var(--flare)}
+.tile .v{font:800 33px/1 var(--f-disp);font-stretch:68%;letter-spacing:0;margin-top:8px}
+.tiles.three .tile{padding:13px 10px 12px 14px}
+.tiles.three .tile .v{font-size:29px}
+.tile .v small{font:700 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--volt);margin-left:4px}
+.tile .d{font-size:11.5px;margin-top:5px}
+
+/* Nudges */
+.nudge{padding:13px 12px 13px 14px}
+.nudge .ico{width:38px;height:38px;border-radius:12px;background:var(--orange-soft);color:var(--flare);border:1px solid rgba(var(--flare-rgb),.28)}
+.nudge .t{font-size:14.5px;font-weight:800}
+.nudge .s{font-size:12.5px}
+.steps li::before{border-radius:7px;background:var(--volt);color:var(--on-accent);font:800 11px/1 var(--f-mono)}
+
+/* ---------- 4. Buttons, chips, fields ---------- */
+.btn{position:relative;overflow:hidden;height:52px;border-radius:15px;font:800 14.5px/1 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.05em;transition:transform .18s var(--ease),box-shadow .2s,filter .2s}
+.btn:active{transform:scale(.96);opacity:1;filter:brightness(1.08)}
+.btn-primary,.btn-green{background:var(--g-volt);color:var(--on-accent);box-shadow:var(--sh-volt)}
+/* a slow sweep of light across the main buttons */
+.btn-primary::after,.btn-green::after,.hero-btn::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:sx-sweep 5.5s var(--ease) infinite;pointer-events:none}
+@keyframes sx-sweep{0%,62%{left:-60%}100%{left:130%}}
+.btn-tinted{background:var(--accent-soft);color:var(--volt);box-shadow:inset 0 0 0 1px var(--line-volt)}
+.btn-gray{background:var(--card-3);color:var(--label);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.btn-danger{background:var(--red-soft);color:var(--red);box-shadow:inset 0 0 0 1px rgba(255,84,104,.3)}
+.btn-sm{height:36px;padding:0 14px;border-radius:11px;font-size:12px}
+.btn-sm.btn-primary{box-shadow:0 0 0 1px rgba(var(--volt-rgb),.5),0 8px 18px -8px rgba(var(--volt-rgb),.7),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn-icon{width:38px;height:38px;border-radius:12px;background:linear-gradient(160deg,#23272e,#16181c);border:1px solid rgba(255,255,255,.08);color:var(--volt);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);transition:transform .15s var(--ease)}
+.btn-icon:active{transform:scale(.9)}
+.btn-icon.lg{width:52px;height:52px;border-radius:16px}
+.text-btn{color:var(--volt);font:700 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+.text-btn.bold{font-weight:800}
+.text-btn.red{color:var(--red)}
+.link-inline{color:var(--volt);font-weight:700}
+.chips{gap:7px}
+.chip{height:36px;padding:0 14px;border-radius:11px;background:var(--card);border:1px solid var(--line);color:var(--label-2);font:700 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;transition:background .2s,color .2s,transform .15s var(--ease)}
+.chip:active{transform:scale(.94)}
+.chip.on{background:var(--g-volt);color:var(--on-accent);border-color:transparent;box-shadow:0 8px 18px -8px rgba(var(--volt-rgb),.7)}
+.seg{background:#0d0f12;border:1px solid var(--line);border-radius:13px;padding:3px;gap:3px}
+.seg button{height:34px;border-radius:10px;font:700 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--label-2);transition:background .25s,color .25s}
+.seg button.on{background:var(--g-volt);color:var(--on-accent);box-shadow:0 6px 16px -6px rgba(var(--volt-rgb),.7),inset 0 1px 0 rgba(255,255,255,.5)}
+.seg.lg button{height:38px;font-size:11.5px}
+.field{height:48px;border-radius:13px;background:#0e1013;border:1px solid var(--line);font-size:16px;transition:border-color .2s,box-shadow .2s}
+.sheet .field{background:#0b0d10}
+.field:focus,.body-in:focus,.c-in:focus{border-color:var(--volt);box-shadow:0 0 0 3px rgba(var(--volt-rgb),.16)}
+.field-lg{height:56px;font:800 20px/1 var(--f-disp)}
+textarea.field{border-radius:15px}
+.search-wrap svg{color:var(--volt);left:13px}
+.search-wrap .field{height:44px;padding-left:40px;background:#0e1013}
+.switch{width:54px;height:32px;border-radius:11px;background:#0d0f12;border:1px solid rgba(255,255,255,.12);transition:background .25s,border-color .25s,box-shadow .25s}
+.switch::after{top:3px;left:3px;width:24px;height:24px;border-radius:8px;background:var(--steel);box-shadow:none;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .25s}
+.switch:checked{background:rgba(var(--volt-rgb),.16);border-color:var(--volt);box-shadow:0 0 16px -2px rgba(var(--volt-rgb),.5)}
+.switch:checked::after{transform:translateX(22px);background:var(--volt)}
+.stepper{height:38px;border-radius:12px;background:#0d0f12;border:1px solid var(--line)}
+.stepper button{width:40px;height:36px;color:var(--volt);font-weight:700}
+.stepper span{font:700 13px/1 var(--f-mono);min-width:54px}
+.stepper.sm{height:30px;border:0}
+.stepper.sm button{height:30px}
+.pick-dot{width:26px;height:26px;border-radius:9px;border:1.5px solid rgba(244,245,239,.26);font:800 12px/1 var(--f-mono)}
+.pick-dot.on{background:var(--volt);border-color:var(--volt);color:var(--on-accent);box-shadow:0 0 14px -2px rgba(var(--volt-rgb),.7)}
+.pick-dot.add{background:var(--accent-soft);color:var(--volt);border:1px solid var(--line-volt)}
+.cal-day.has,.hbar .fill{background:var(--volt);color:var(--on-accent)}
+
+/* ---------- 5. Tab bar, dock, toast ---------- */
+/* A floating glass bar. The volt block slides to the active tab (:has() picks the position). */
+.tabbar{left:12px;right:12px;bottom:max(10px,calc(var(--safe-b) - 8px));height:64px;max-width:480px;margin:0 auto;padding:6px;border-radius:24px;border:1px solid rgba(255,255,255,.1);background:rgba(17,19,23,.74);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);box-shadow:0 24px 44px -12px #000,0 0 0 1px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);justify-content:stretch}
+.tabbar::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:calc((100% - 12px) / 5);border-radius:18px;background:var(--g-volt);box-shadow:0 0 22px -2px rgba(var(--volt-rgb),.75),inset 0 1px 0 rgba(255,255,255,.6);opacity:0;transition:transform .5s cubic-bezier(.3,1.35,.5,1),opacity .25s}
+.tabbar:has(.tab.active)::before{opacity:1}
+.tabbar:has(.tab:nth-child(2).active)::before{transform:translateX(100%)}
+.tabbar:has(.tab:nth-child(3).active)::before{transform:translateX(200%)}
+.tabbar:has(.tab:nth-child(4).active)::before{transform:translateX(300%)}
+.tabbar:has(.tab:nth-child(5).active)::before{transform:translateX(400%)}
+.tab{position:relative;z-index:1;max-width:none;gap:4px;color:rgba(244,245,239,.55);font:700 9px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;transition:color .3s,transform .2s var(--ease)}
+.tab:active{transform:scale(.92)}
+.tab svg{width:23px;height:23px;transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
+.tab.active{color:var(--on-accent)}
+.tab.active svg{transform:translateY(-1px) scale(1.08);stroke-width:2.4}
+@supports not selector(:has(a)){.tab.active{color:var(--volt)}}
+.tab.has-dot::after{content:"";position:absolute;top:9px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--flare);box-shadow:0 0 0 2px #14161a;animation:sx-ping 2.2s infinite}
+@keyframes sx-ping{0%{box-shadow:0 0 0 2px #14161a,0 0 0 2px rgba(var(--flare-rgb),.7)}70%,100%{box-shadow:0 0 0 2px #14161a,0 0 0 10px rgba(var(--flare-rgb),0)}}
+.dock{padding:0 12px 10px;max-width:504px}
+.rest-pill{border-radius:20px;padding:9px 9px 9px 12px;background:rgba(17,19,23,.82);border:1px solid rgba(95,227,255,.28);box-shadow:0 20px 40px -12px #000,0 0 30px -10px rgba(95,227,255,.5)}
+.rest-ring circle:first-child{stroke:rgba(255,255,255,.1)}
+#rest-arc{stroke:var(--ice);filter:drop-shadow(0 0 4px rgba(95,227,255,.8))}
+.rest-time{font:800 28px/1 var(--f-disp);font-stretch:68%}
+.rest-label{font:700 9.5px/1.3 var(--f-mono);letter-spacing:.14em;color:var(--ice)}
+.rest-pill.done{background:var(--g-volt);border-color:transparent;color:var(--on-accent);font:800 14px/1 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.05em;box-shadow:var(--sh-volt)}
+.mini-bar{background:var(--g-volt);color:var(--on-accent);border-radius:18px;padding:14px 16px;font-weight:800;box-shadow:var(--sh-volt)}
+.mini-bar .pulse{background:var(--on-accent)}
+.mini-bar .num{font:700 13px/1 var(--f-mono)}
+.toast{top:calc(var(--safe-t) + 12px);background:rgba(17,19,23,.9);border:1px solid var(--line-volt);border-radius:14px;padding:12px 18px 12px 34px;font-size:14px;font-weight:700;box-shadow:0 20px 40px -12px #000,0 0 30px -12px rgba(var(--volt-rgb),.6)}
+.toast::before{content:"";position:absolute;left:14px;top:50%;width:9px;height:9px;margin-top:-4.5px;background:var(--volt);clip-path:polygon(0 100%,0 50%,50% 50%,50% 0,100% 0,100% 100%)}
+.kbd-bar{background:rgba(17,19,23,.94);border-top:1px solid var(--line)}
+.kbd-bar button{height:42px;border-radius:12px;background:var(--card-3);font:700 14px/1 var(--f-mono)}
+.kbd-bar .ok{background:var(--g-volt);color:var(--on-accent);font:800 13px/1 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.05em}
+
+/* ---------- 6. Workout tab ---------- */
+.pill-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);font:700 10.5px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--label-2)}
+.pill-btn svg{width:18px;height:18px;color:var(--volt)}
+.pill-btn:active{background:var(--card-2)}
+/* Logo lockup */
+.au-lockup{display:flex;align-items:center;gap:11px}
+.au-mark{flex:none;display:block;filter:drop-shadow(0 6px 14px rgba(var(--volt-rgb),.18))}
+.au-word{font:italic 900 16px/1 var(--f-disp);font-stretch:125%;letter-spacing:.01em;text-transform:uppercase;white-space:nowrap}
+.au-sub{font:800 9px/1 var(--f-mono);letter-spacing:.62em;color:var(--volt);margin-top:6px;white-space:nowrap}
+.greet{margin:18px 2px 18px}
+.greet-k{display:flex;align-items:center;gap:12px}
+.greet-t{font-size:33px;margin:18px 0 0}
+/* Hero: the one loud card */
+.hero{border-radius:26px;padding:22px 20px 20px;color:var(--label);border:1px solid rgba(255,255,255,.09);background:
+  radial-gradient(95% 120% at 100% 0%,rgba(var(--volt-rgb),.2),transparent 62%),
+  linear-gradient(160deg,#1c2027 0%,#0f1114 72%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 34px 60px -34px rgba(var(--volt-rgb),.4),0 20px 40px -24px #000}
+.hero::before{content:"";position:absolute;inset:0;background:var(--stairs);opacity:.2;-webkit-mask-image:linear-gradient(215deg,#000 0%,transparent 44%);mask-image:linear-gradient(215deg,#000 0%,transparent 44%)}
+.hero > *{position:relative;z-index:1}
+.hero-k{display:flex;align-items:center;gap:8px;font:700 10.5px/1.2 var(--f-mono);letter-spacing:.16em;color:var(--volt);opacity:1}
+.hero-k::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--volt);box-shadow:0 0 10px var(--volt);animation:pulse 1.6s infinite}
+.hero-t{font:italic 900 40px/.92 var(--f-disp);font-stretch:125%;text-transform:uppercase;letter-spacing:-.02em;margin:12px 0 10px;background:linear-gradient(100deg,#f4f5ef 45%,var(--volt) 110%);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:6px}
+.hero-s{font-size:14px;line-height:1.5;color:var(--label-2);margin-bottom:18px;max-width:92%}
+.hero-btn{height:60px;font-size:16px;border-radius:18px;background:var(--g-volt);color:var(--on-accent);box-shadow:var(--sh-volt);animation:sx-breathe 3.2s ease-in-out infinite}
+@keyframes sx-breathe{50%{box-shadow:0 0 0 1px rgba(var(--volt-rgb),.7),0 16px 44px -8px rgba(var(--volt-rgb),.85),inset 0 1px 0 rgba(255,255,255,.65),inset 0 -2px 0 rgba(0,0,0,.16)}}
+.hero-btn svg{fill:currentColor}
+.hero::after{display:none}
+/* This week, as a staircase */
+.wsteps{display:block;width:100%;margin-top:12px;padding:16px 16px 12px;text-align:left;position:relative;overflow:hidden;transition:transform .2s var(--ease)}
+.wsteps:active{transform:scale(.985)}
+.wsteps span{display:block}
+.wsteps .ws-h{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.ws-k{font:700 10px/1.2 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--label-2)}
+.ws-t{font:800 13px/1 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.05em;margin-top:6px}
+.ws-t b{font:800 40px/.9 var(--f-disp);font-stretch:66%;color:var(--volt);margin-right:6px;letter-spacing:0;text-shadow:0 0 24px rgba(var(--volt-rgb),.45)}
+.ws-life{text-align:right}
+.ws-n{font:800 40px/.9 var(--f-disp);font-stretch:66%;margin-top:6px;color:transparent;-webkit-text-stroke:1.2px rgba(244,245,239,.6)}
+.wsteps .ws-stair{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));height:106px;margin-top:14px;border-bottom:1px solid var(--sep)}
+.wsteps .ws-d{display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0}
+.ws-d i{display:block;position:relative;height:calc(4px + (100% - 44px) * var(--h) / var(--n));transform-origin:50% 100%;transform:scaleY(calc(.15 + .85 * var(--sx-in)));border-top:2px solid rgba(165,176,192,.5);background:linear-gradient(180deg,rgba(120,132,150,.26),rgba(120,132,150,.04))}
+.ws-d.on i{border-top-color:var(--volt-hi);background:linear-gradient(180deg,rgba(var(--volt-rgb),.9),rgba(var(--volt-rgb),.1));box-shadow:0 -8px 22px -6px rgba(var(--volt-rgb),.75),inset 1px 0 0 rgba(var(--volt-hi-rgb),.7)}
+.ws-d.future i{border-top:2px dashed rgba(244,245,239,.16);background:none}
+.ws-d i b{position:absolute;top:5px;left:0;right:0;text-align:center;font:800 9px/1 var(--f-mono);color:var(--on-accent)}
+.ws-d.ball i::before{content:"";position:absolute;left:50%;top:-18px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--bone);box-shadow:0 0 14px rgba(244,245,239,.7);animation:sx-bob 1.8s ease-in-out infinite}
+@keyframes sx-bob{50%{transform:translateY(-7px)}}
+.ws-d em{display:block;height:24px;line-height:24px;text-align:center;font:700 10px/24px var(--f-mono);font-style:normal;color:var(--label-3);background:var(--card)}
+.ws-d.today em{color:var(--volt)}
+.ws-d.today em::after{content:"";display:block;width:4px;height:4px;margin:-5px auto 0;border-radius:50%;background:var(--volt)}
+/* Monthly challenge */
+/* "Already trained?" */
+.quick{padding:16px 14px 14px;margin-top:12px}
+.quick-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 2px 13px}
+.quick-h b{font:800 14px/1.1 var(--f-disp);font-stretch:118%;text-transform:uppercase;letter-spacing:.04em}
+.quick-h span{font:700 9.5px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--label-3)}
+.quick-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;counter-reset:q}
+.quick-row button{counter-increment:q;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:12px 10px 12px 12px;border-radius:16px;background:var(--card-2);border:1px solid var(--line);font-size:13px;font-weight:700;line-height:1.15;text-align:left;transition:transform .18s var(--ease),border-color .2s}
+.quick-row button::after{content:"0" counter(q);position:absolute;top:12px;right:11px;font:700 9.5px/1 var(--f-mono);letter-spacing:.08em;color:var(--label-3)}
+.quick-row button:active{transform:scale(.95);border-color:var(--volt)}
+.qc{width:40px;height:40px;border-radius:13px;background:var(--accent-soft);border:1px solid var(--line-volt);display:flex;align-items:center;justify-content:center;color:var(--volt);transition:background .15s,color .15s}
+.qc svg{width:22px;height:22px}
+.quick-row button:active .qc{background:var(--volt);color:var(--on-accent)}
+/* Routines: numbered like steps on a ladder */
+.routines{gap:10px;counter-reset:rt}
+.routine{counter-increment:rt;position:relative;padding:15px 14px 14px 62px;gap:5px;overflow:hidden;transition:transform .2s var(--ease)}
+.routine::before{content:counter(rt,decimal-leading-zero);position:absolute;left:14px;top:14px;font:800 32px/1 var(--f-disp);font-stretch:66%;color:transparent;-webkit-text-stroke:1.2px var(--volt)}
+.routine::after{content:"";position:absolute;left:28px;top:54px;bottom:14px;width:1px;background:linear-gradient(var(--line-volt),transparent)}
+.routine-name{font:800 15.5px/1.2 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.02em}
+.routine-ex{font-size:13px;line-height:1.45}
+.routine-foot{margin-top:10px}
+.routine-foot .small{font-size:11.5px;line-height:1.35}
+.routine-foot .btn svg,.btn .i{fill:none}
+/* Contextual tip */
+
+/* ---------- 7. Workout in progress ---------- */
+.ed-name{font:italic 900 21px/1.1 var(--f-disp);font-stretch:116%;text-transform:uppercase;letter-spacing:-.01em;margin:4px 0 8px}
+.ed-meta{font:500 12.5px/1 var(--f-mono);gap:14px;margin-bottom:18px}
+.ed-meta svg{color:var(--volt)}
+.ed-meta b{font-weight:700}
+.ed-dt{border-radius:10px;background:#0e1013;border:1px solid var(--line);font:500 13px/1 var(--f-mono)}
+.ed-hint{border-radius:13px;background:var(--accent-soft);border:1px solid var(--line-volt);font-size:12.5px}
+.ed-empty svg{color:var(--volt);opacity:.5}
+.ex-card{padding:13px 11px 11px;margin-bottom:12px}
+.ex-head{padding:0 0 0 5px}
+.ex-name,.link-name{color:var(--label);font:800 16px/1.2 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.02em}
+.ex-name{min-height:38px}
+.ex-sub{font:500 11px/1.3 var(--f-mono);padding:0 5px 10px;gap:7px}
+.ex-sub .pr{color:var(--flare);font-weight:700}
+.set-grid{grid-template-columns:36px minmax(0,1fr) 72px 60px 46px;gap:6px}
+.editor.edit .set-grid{grid-template-columns:36px minmax(0,1fr) 80px 66px}
+.set-head{font:700 9.5px/1 var(--f-mono);letter-spacing:.14em;color:var(--label-3);padding:0 4px 6px}
+.set-row{padding:3px 4px;border-radius:13px;transition:background .3s}
+.set-row.done{background:linear-gradient(90deg,rgba(var(--volt-rgb),.16),rgba(var(--volt-rgb),.05))}
+.set-num,.set-prev,.set-in,.set-check{height:40px}
+.set-num{border-radius:11px;background:#0e1013;border:1px solid var(--line);font:700 13px/1 var(--f-mono)}
+.set-row.done .set-num{border-color:var(--line-volt);color:var(--volt)}
+.set-row.pr .set-num{background:var(--orange-soft);border-color:rgba(var(--flare-rgb),.4);color:var(--flare)}
+.set-prev{font:500 12.5px/40px var(--f-mono)}
+.set-in{border-radius:11px;background:#0e1013;border:1px solid var(--line);font:800 19px/1 var(--f-disp);font-stretch:80%;transition:border-color .2s,box-shadow .2s}
+.set-in:focus{background:#0e1013;border-color:var(--volt);box-shadow:0 0 0 3px rgba(var(--volt-rgb),.16)}
+.set-row.done .set-in{border-color:transparent}
+.editor.edit .set-row.done .set-in{background:#0e1013;border-color:var(--line)}
+.set-check{border-radius:11px;background:#0e1013;border:1px solid var(--line);color:var(--label-3);transition:background .2s,color .2s,box-shadow .3s}
+.set-row.done .set-check{background:var(--g-volt);border-color:transparent;color:var(--on-accent);box-shadow:0 0 18px -2px rgba(var(--volt-rgb),.8)}
+/* ticking a set: the tick pops and throws a ring */
+.set-row.just .set-check{animation:sx-tick .55s var(--ease)}
+@keyframes sx-tick{0%{transform:scale(.7)}45%{transform:scale(1.22);box-shadow:0 0 0 0 rgba(var(--volt-rgb),.7)}100%{transform:scale(1);box-shadow:0 0 0 18px rgba(var(--volt-rgb),0)}}
+.add-set{height:40px;margin-top:8px;border-radius:12px;background:none;border:1px dashed rgba(255,255,255,.16);color:var(--label-2);font:700 10.5px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase}
+.add-set:active{border-color:var(--volt);color:var(--volt)}
+.iv-f{border-radius:13px;background:#0e1013;border:1px solid var(--line)}
+.iv-f > span,.cd-f > span:first-child{font:700 9px/1.2 var(--f-mono);letter-spacing:.12em}
+.cd-f{border-radius:13px;background:#0e1013;border:1px solid var(--line)}
+.cd-tick{border-radius:12px;background:var(--card-3)}
+.cd-tick.on{background:var(--g-volt)}
+.cd-clock{font:800 34px/1 var(--f-disp);font-stretch:68%}
+/* Workout complete */
+.done-badge{position:relative;width:84px;height:84px;border-radius:26px;margin:16px auto 18px;background:var(--g-volt);color:var(--on-accent);box-shadow:var(--sh-volt);animation:sx-land .7s cubic-bezier(.3,1.5,.5,1)}
+.done-badge::before,.done-badge::after{content:"";position:absolute;inset:-10px;border-radius:34px;border:1.5px solid rgba(var(--volt-rgb),.6);animation:sx-ring 2.4s ease-out infinite}
+.done-badge::after{animation-delay:1.2s}
+.done-badge.pr{background:linear-gradient(180deg,#ffb07a,#ff8a3d 50%,#f06a1c);color:#2b1200;box-shadow:0 0 0 1px rgba(var(--flare-rgb),.6),0 12px 34px -8px rgba(var(--flare-rgb),.7),inset 0 1px 0 rgba(255,255,255,.6)}
+.done-badge.pr::before,.done-badge.pr::after{border-color:rgba(var(--flare-rgb),.6)}
+@keyframes sx-land{0%{transform:translateY(40px) scale(.4) rotate(-14deg);opacity:0}}
+@keyframes sx-ring{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.7);opacity:0}}
+.pr-line svg{color:var(--flare)}
+.sheet-h1{font:italic 900 27px/1.02 var(--f-disp);font-stretch:122%;text-transform:uppercase;letter-spacing:-.015em;margin:4px 0 8px;text-wrap:balance}
+.meta-row{font:500 12px/1.3 var(--f-mono)}
+.det-set{font:500 13px/1.3 var(--f-mono);border-top:1px solid var(--sep)}
+.det-set .n{color:var(--volt)}
+/* Interval timer */
+.iv{background:radial-gradient(90% 60% at 50% 30%,rgba(var(--volt-rgb),.2),transparent 70%),var(--bg);--ivc:var(--volt)}
+.iv.rest{background:radial-gradient(90% 60% at 50% 30%,rgba(95,227,255,.18),transparent 70%),var(--bg);--ivc:var(--ice)}
+.iv.prep{background:radial-gradient(90% 60% at 50% 30%,rgba(var(--flare-rgb),.2),transparent 70%),var(--bg);--ivc:var(--flare)}
+.iv.done{background:var(--bg)}
+.iv-title{font:800 13px/1.2 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.05em}
+.iv-x,.iv-count{font:700 12px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
+.iv-phase{font:800 13px/1 var(--f-mono);letter-spacing:.34em}
+.iv-time{font:800 min(34vw,140px)/1 var(--f-disp);font-stretch:64%;letter-spacing:0}
+.iv-arc{filter:drop-shadow(0 0 8px var(--ivc))}
+.iv-rep,.iv-ctrl button{border-radius:18px}
+.iv-ctrl button{font:800 14px/1 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.05em}
+.iv-ctrl .pri,.iv.done .iv-ctrl .pri{color:var(--on-accent)}
+.iv.done .iv-ctrl .pri{background:var(--volt)}
+/* Plate calculator */
+.pi-wrap{border-radius:20px;background:#0e1013;border:1px solid var(--line-volt);padding:8px 18px;box-shadow:0 0 30px -12px rgba(var(--volt-rgb),.6)}
+.pi{font:800 52px/1 var(--f-disp);font-stretch:68%}
+.pi-wrap span{font:700 13px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--volt)}
+.plate-text{font-size:15px}
+
+/* ---------- 8. History and progress ---------- */
+.sess{position:relative;padding:15px 16px 14px 20px;overflow:hidden;transition:transform .2s var(--ease)}
+.sess::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(var(--volt),rgba(var(--volt-rgb),.15))}
+.sess:active{background:var(--card-2);transform:scale(.985)}
+.sess-name,.routine-name{font-weight:800}
+.sess-name{font:800 15px/1.2 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.02em}
+.sess-date{font:500 10.5px/1.2 var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
+.sess-stats{font:500 11.5px/1.2 var(--f-mono);margin:8px 0 10px}
+.sess-stats svg{color:var(--volt)}
+.sess-ex{font-size:13.5px;color:var(--label-2)}
+/* folded History card: only the workout part reacts to a press, not the exercises toggle */
+.sess.sess-fold:active{background:var(--g-card),var(--card);transform:none}
+.sess-fold .sess-open{transition:transform .2s var(--ease)}
+.sess-fold .sess-open:active{transform:scale(.985)}
+.sess-more{font:600 10.5px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+.sess-more svg{color:var(--volt)}
+.prog-steps .wsteps{cursor:default}
+.prog-steps .wsteps:active{transform:none}
+.cal-day{border-radius:11px;font:500 12.5px/1 var(--f-mono)}
+.cal-day.has{font-weight:800;box-shadow:0 0 14px -3px rgba(var(--volt-rgb),.75)}
+.cal-day.today{box-shadow:0 0 0 1.5px var(--volt) inset;color:var(--volt)}
+.cal-day.has.today{box-shadow:0 0 0 2px var(--bone) inset,0 0 14px -3px rgba(var(--volt-rgb),.75);color:var(--on-accent)}
+.cal-dow{font:700 9.5px/1 var(--f-mono);letter-spacing:.1em;color:var(--label-3)}
+.card-h h3{font:800 14px/1.2 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.04em}
+.chart .ax{font-family:var(--f-mono);font-size:9.5px;fill:var(--label-3)}
+.chart .tip{border-radius:11px;background:#0b0d10;border:1px solid var(--line-volt);font:500 10.5px/1.3 var(--f-mono)}
+.chart .tip b{font:800 17px/1.2 var(--f-disp);font-stretch:75%}
+.chart svg{overflow:visible}
+.hbar{font-size:13px}
+.hbar .track{height:8px;border-radius:3px;background:#0e1013}
+.hbar .fill{border-radius:3px;background:linear-gradient(90deg,var(--volt-lo),var(--volt-hi));box-shadow:0 0 12px -2px rgba(var(--volt-rgb),.7)}
+.hbar .val,.legend{font-family:var(--f-mono);font-size:11px}
+.body-big{font:800 52px/1 var(--f-disp);font-stretch:66%;letter-spacing:0}
+.body-big small{font:700 12px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--volt)}
+.body-in,.c-in{height:40px;border-radius:11px;background:#0e1013;border:1px solid var(--line);font:800 17px/1 var(--f-disp);font-stretch:85%}
+.c-stats b{font:800 24px/1 var(--f-disp);font-stretch:70%;letter-spacing:0}
+.c-stats{font-size:12.5px}
+.cico{border-radius:10px}
+.cico.lg{border-radius:15px}
+.eff{font:700 10px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;border-radius:7px;padding:5px 8px}
+.eff-pick button,.c-types button{border-radius:14px;background:#0e1013;border:1px solid var(--line);font-size:12px}
+.rec-ico{color:var(--flare)}
+
+/* ---------- 9. Sheets, dialogs, action sheets ---------- */
+.sheet-backdrop{background:rgba(5,6,8,.66);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet{border-radius:30px 30px 0 0;background:linear-gradient(180deg,#181b20,#101215 180px);border-top:1px solid rgba(255,255,255,.12);box-shadow:0 -30px 60px -10px #000,0 -1px 0 rgba(var(--volt-rgb),.25)}
+.sheet::before{content:"";position:absolute;left:18%;right:18%;top:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--volt),transparent);pointer-events:none}
+.sheet-head{min-height:58px;padding:12px 12px 2px}
+.sheet-head::before{top:7px;width:44px;height:4px;border-radius:2px;background:rgba(255,255,255,.22)}
+.sheet-title{font:800 12.5px/1.2 var(--f-disp);font-stretch:118%;text-transform:uppercase;letter-spacing:.08em}
+.sheet-body{padding:6px 16px calc(30px + var(--safe-b))}
+.alert-wrap,.as-wrap{background:rgba(5,6,8,.66);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.alert{width:306px;border-radius:26px;background:linear-gradient(180deg,#1e2228,#14161a);border:1px solid rgba(255,255,255,.1);box-shadow:0 40px 80px -20px #000,0 0 0 1px rgba(0,0,0,.6);animation:sx-pop .4s cubic-bezier(.3,1.4,.5,1)}
+@keyframes sx-pop{from{transform:translateY(18px) scale(.92);opacity:0}}
+.alert.wide{width:min(350px,100%)}
+.alert-body{padding:24px 20px 18px}
+.alert-title{font:800 16px/1.2 var(--f-disp);font-stretch:116%;text-transform:uppercase;letter-spacing:.03em}
+.alert-msg{font-size:13.5px;margin-top:8px;line-height:1.5;color:var(--label-2)}
+.alert-input{background:#0b0d10!important}
+.alert-btns{border-top:0;gap:8px;padding:0 12px 12px}
+.alert-btns button{min-height:48px;border-radius:14px;background:var(--card-3);color:var(--label);font:800 12.5px/1.15 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.05em;transition:transform .15s var(--ease)}
+.alert-btns button:active{transform:scale(.96)}
+.alert-btns:not(.stack) button + button,.alert-btns.stack button + button{border:0}
+.alert-btns .bold{background:var(--g-volt);color:var(--on-accent);box-shadow:var(--sh-volt)}
+.alert-btns .red{background:var(--red-soft);color:var(--red);box-shadow:inset 0 0 0 1px rgba(255,84,104,.3)}
+.as-wrap{padding:10px 10px calc(10px + var(--safe-b))}
+.as-sheet{animation:up .4s cubic-bezier(.3,1.25,.5,1)}
+.as-group{border-radius:24px;background:linear-gradient(180deg,#1e2228,#14161a);border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 60px -20px #000}
+.as-title{font:700 10.5px/1.3 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--volt);padding:16px;border-bottom:1px solid var(--sep)}
+.as-btn{height:58px;font-size:16px;font-weight:700;color:var(--label)}
+.as-btn + .as-btn{border-top:1px solid var(--sep)}
+.as-btn.red{color:var(--red)}
+.as-btn.bold{font:800 13.5px/1 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.06em;color:var(--volt)}
+.as-btn:active{background:rgba(var(--volt-rgb),.08)}
+
+.recap-img{width:100%;border-radius:20px;display:block;border:1px solid var(--line-volt);box-shadow:0 30px 60px -30px rgba(var(--volt-rgb),.5)}
+/* ---------- 13. Settings ---------- */
+#v-settings .caption.center{font:500 10.5px/1.7 var(--f-mono);letter-spacing:.04em;color:var(--label-3)}
+
+/* ---------- 14. Motion preferences ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .view > *{translate:none}
+}
+
+/* ---------- 15. Accent choices ----------
+   Settings → Accent colour (ACCENTS in the script) sets data-accent on <html>. Volt is the default
+   and has no block. Each block repeats the accent in every form the theme uses it: the colour, its
+   RGB for the translucent glows, the button gradient, text on the accent, and the two stair
+   patterns (data URIs can't read variables). Orange moves records (flare) to gold so they still stand out.
+   Keep the hex values in step with ACCENTS in the script. */
+:root[data-accent="orange"]{ /* Electric orange */
+  --volt:#ff7a1a; --volt-rgb:255,122,26; --volt-hi-rgb:255,169,94; --volt-hi:#ffa95e; --volt-lo:#e25a00; --volt-top:#ff9b47; --volt-bot:#e86100;
+  --on-accent:#1a0b00; --on-green:#1a0b00; --flare:#ffd23d; --flare-rgb:255,210,61;
+  --stairs:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M0 27.5h14v-14h14' fill='none' stroke='%23ff7a1a' stroke-width='1'/%3E%3C/svg%3E");
+  --stair-xl:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpath d='M0 290h50v-50h50v-50h50v-50h50v-50h50v-50h50' fill='none' stroke='%23ff7a1a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+:root[data-accent="sky"]{ /* Light blue */
+  --volt:#5cc6ff; --volt-rgb:92,198,255; --volt-hi-rgb:166,225,255; --volt-hi:#a6e1ff; --volt-lo:#2a9fe0; --volt-top:#8ad6ff; --volt-bot:#2fa3e6;
+  --on-accent:#03121c; --on-green:#03121c;
+  --stairs:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M0 27.5h14v-14h14' fill='none' stroke='%235cc6ff' stroke-width='1'/%3E%3C/svg%3E");
+  --stair-xl:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpath d='M0 290h50v-50h50v-50h50v-50h50v-50h50v-50h50' fill='none' stroke='%235cc6ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+:root[data-accent="cobalt"]{ /* Dark blue */
+  --volt:#4a78ff; --volt-rgb:74,120,255; --volt-hi-rgb:143,169,255; --volt-hi:#8fa9ff; --volt-lo:#2a52e0; --volt-top:#7091ff; --volt-bot:#2e57e6;
+  --on-accent:#ffffff; --on-green:#ffffff;
+  --stairs:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M0 27.5h14v-14h14' fill='none' stroke='%234a78ff' stroke-width='1'/%3E%3C/svg%3E");
+  --stair-xl:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpath d='M0 290h50v-50h50v-50h50v-50h50v-50h50v-50h50' fill='none' stroke='%234a78ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+:root[data-accent="violet"]{ /* Violet */
+  --volt:#a66bff; --volt-rgb:166,107,255; --volt-hi-rgb:201,166,255; --volt-hi:#c9a6ff; --volt-lo:#7d3ff0; --volt-top:#bb8cff; --volt-bot:#8447f2;
+  --on-accent:#12061f; --on-green:#12061f;
+  --stairs:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M0 27.5h14v-14h14' fill='none' stroke='%23a66bff' stroke-width='1'/%3E%3C/svg%3E");
+  --stair-xl:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpath d='M0 290h50v-50h50v-50h50v-50h50v-50h50v-50h50' fill='none' stroke='%23a66bff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+/* the logo's stair follows the accent too */
+:root[data-accent] [id^="sx-g"] stop:nth-child(1){stop-color:var(--volt-lo)}
+:root[data-accent] [id^="sx-g"] stop:nth-child(2){stop-color:var(--volt)}
+:root[data-accent] [id^="sx-g"] stop:nth-child(3){stop-color:var(--volt-hi)}
+/* the picker in Profile */
+.accent-pick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:14px 10px}
+.accent-pick button{display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 2px;border-radius:14px;font:600 9.5px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--label-2);text-align:center}
+.accent-pick i{width:38px;height:38px;border-radius:12px;background:var(--sw);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 16px -6px var(--sw);display:grid;place-items:center}
+.accent-pick button[aria-pressed="true"]{color:var(--label)}
+.accent-pick button[aria-pressed="true"] i{outline:2px solid var(--label);outline-offset:3px}
+.accent-pick svg{width:18px;height:18px;color:var(--sw-on)}
+
+/* ---------- 16. What's new and Monthly Recap ---------- */
+.recap-img{-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}   /* press and hold to save it */
+.recap-row{width:100%;text-align:left;margin-top:0;margin-bottom:16px}
+.recap-row .ico{background:var(--accent-soft);color:var(--volt);border-color:var(--line-volt)}
+.recap-row:active{transform:scale(.985)}
+.wn-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 22px}
+.wn-v{font:700 10px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--volt);padding:7px 10px;border:1px solid var(--line-volt);border-radius:999px}
+.wn-t{font:italic 900 34px/.95 var(--f-disp);font-stretch:125%;text-transform:uppercase;letter-spacing:-.02em;margin:0 0 12px;background:linear-gradient(100deg,#f4f5ef 45%,var(--volt) 110%);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:6px}
+.wn-intro{font-size:15px;line-height:1.5;color:var(--label-2);margin:0 0 18px}
+.wn-intro b{color:var(--label)}
+.wn-list{display:flex;flex-direction:column;gap:10px}
+.wn-item{display:flex;gap:13px;align-items:flex-start;padding:13px 14px;border-radius:16px;background:var(--g-card),var(--card);border:1px solid var(--line)}
+.wn-ico{flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--accent-soft);color:var(--volt);border:1px solid var(--line-volt)}
+.wn-ico svg{width:19px;height:19px}
+.wn-it{font:800 13.5px/1.2 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.03em}
+.wn-id{font-size:13.5px;line-height:1.45;color:var(--label-2);margin-top:4px}
+.wn-id b{color:var(--label)}
 </style>
 </head>
 <body>
@@ -529,13 +1035,57 @@ textarea.alert-input{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 <script>
 'use strict';
 /* =========================================================
-   IronTrack v4 — single-file workout tracker
+   Rep by Rep RSA (IronTrack until 4.7) — single-file workout tracker
    Data lives in localStorage under KEY. v3 data (it_exercises /
    it_history) is migrated automatically and left untouched.
    All weights are stored in kg and converted for display.
    ========================================================= */
 
+/* The app was called IronTrack until 4.7. KEY (and the backup format) keep the old name on purpose:
+   it is where every phone already has its data, so it must never change. */
 const KEY = 'irontrack_v4';
+const APP = { name:'Rep by Rep RSA', short:'Rep by Rep', version:'5.0', word:['REP BY REP', 'RSA'], tagline:'Step by step' };
+/* The logo: a staircase, one step per session. Ids get a suffix so several copies can share a page. */
+const MARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Rep by Rep RSA">
+  <defs>
+    <linearGradient id="sx-g" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#a9d61c"/><stop offset=".55" stop-color="#c6f135"/><stop offset="1" stop-color="#e4ff7a"/>
+    </linearGradient>
+    <linearGradient id="sx-t" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#20242b"/><stop offset="1" stop-color="#101216"/>
+    </linearGradient>
+  </defs>
+  <rect class="sx-tile" x="3" y="3" width="114" height="114" rx="28" fill="url(#sx-t)" stroke="#2c313a" stroke-width="2"/>
+  <path class="sx-stair" d="M24 92h22V68h22V44h22" fill="none" stroke="url(#sx-g)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle class="sx-dot" cx="94" cy="24" r="9" fill="#f4f5ef"/>
+</svg>`;
+let markN = 0;
+function logoMark(size = 40, cls = ''){
+  const n = ++markN;
+  return MARK_SVG.replace(/\s(role|aria-label|width|height)="[^"]*"/g, '')
+    .replace(/\bid="([^"]+)"/g, (_, id) => `id="${id}-${n}"`).replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${id}-${n})`)
+    .replace('<svg', `<svg class="au-mark ${cls}" width="${size}" height="${size}" aria-hidden="true"`);
+}
+/* Accent colours (Settings → Accent colour). Volt is the default and needs no CSS of its own; the
+   theme styles each other one under :root[data-accent="<id>"] (section 15). The choice is kept on
+   this phone only (rxr_accent). Charts and the Monthly Recap read ACCENT. */
+const HEX = /^#[0-9a-f]{6}$/i;
+const ACCENTS = [
+  { id:'volt',   name:'Volt',            color:'#c6f135', hi:'#e4ff7a', lo:'#9ccb16', on:'#0d1004' },
+  { id:'orange', name:'Electric orange', color:'#ff7a1a', hi:'#ffa95e', lo:'#e25a00', on:'#1a0b00' },
+  { id:'sky',    name:'Light blue',      color:'#5cc6ff', hi:'#a6e1ff', lo:'#2a9fe0', on:'#03121c' },
+  { id:'cobalt', name:'Dark blue',       color:'#4a78ff', hi:'#8fa9ff', lo:'#2a52e0', on:'#ffffff' },
+  { id:'violet', name:'Violet',          color:'#a66bff', hi:'#c9a6ff', lo:'#7d3ff0', on:'#12061f' }
+];
+let ACCENT = ACCENTS[0].color;
+const accentPick = () => ACCENTS.find(a => a.id === prefGet('rxr_accent')) || ACCENTS[0];
+function applyAccent(){
+  const a = accentPick(), root = document.documentElement;
+  if(a !== ACCENTS[0]) root.dataset.accent = a.id; else delete root.dataset.accent;
+  ACCENT = a.color;
+}
+applyAccent();
+const lockup = (size = 40) => `<div class="au-lockup">${logoMark(size)}<div><div class="au-word">${APP.word[0]}</div><div class="au-sub">${APP.word[1]}</div></div></div>`;
 const CATS = ['Chest','Back','Shoulders','Legs','Arms','Core','Other'];
 const LB = 0.45359237;
 /* Default library for new users:
@@ -631,7 +1181,11 @@ const ICONS = {
   gauge:'<path d="M4.5 17.5a8.5 8.5 0 1 1 15 0"/><path d="M12 14.5l3.5-4"/>',
   row:'<circle cx="11" cy="6" r="2"/><path d="M2 19h20M5 19l1.5-3h5.5l3-4.5M9.5 16l-1-5.5 5 1.5h6"/>',
   ski:'<path d="M4 3h16M8 3v7M16 3v7M6.5 10h3M14.5 10h3"/><circle cx="12" cy="12" r="2"/><path d="M12 14v4M12 18l-2.5 3.5M12 18l2.5 3.5M8 11.5l4 3 4-3"/>',
-  stairs:'<path d="M3 20h4.5v-4h4.5v-4h4.5V8H21"/><path d="M3 20h18"/>'
+  stairs:'<path d="M3 20h4.5v-4h4.5v-4h4.5V8H21"/><path d="M3 20h18"/>',
+  person:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 1.8 1.8.7-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"/>',
+  image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
+  palette:'<path d="M12 3a9 9 0 1 0 0 18c1.3 0 2-.8 2-1.8 0-1.4-1.2-1.7-1.2-3 0-1 .8-1.7 1.8-1.7H17a4 4 0 0 0 4-4C21 6.4 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/>'
 };
 const ic = (n, cls='i') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
 const chev = () => ic('chevR','chev');
@@ -708,7 +1262,7 @@ let migratedCount = 0;
 function defaultSettings(){
   return { unit:'kg', rest:90, autoRest:true, sound:true, vibrate:true, keepAwake:true,
     bar:{kg:20, lb:45}, plates:{kg:[25,20,15,10,5,2.5,1.25], lb:[45,35,25,10,5,2.5]}, lastBackup:null,
-    lenUnit:'cm', bodyRemind:'monthly', distUnit:null };
+    lenUnit:'cm', bodyRemind:'monthly', distUnit:null, name:'' };
 }
 function exFromDefault([name, cat, rest, iv]){
   const o = { id:uid(), name, cat };
@@ -766,6 +1320,7 @@ function normalize(d){
   const st = freshState();
   const s = d.settings || {};
   st.settings = { ...st.settings, ...s, bar:{...st.settings.bar, ...(s.bar||{})}, plates:{...st.settings.plates, ...(s.plates||{})} };
+  st.settings.name = typeof st.settings.name === 'string' ? st.settings.name.slice(0, 30) : '';   // display name for the greeting (5.0)
   if(!['kg','lb'].includes(st.settings.unit)) st.settings.unit = 'kg';
   if(!['cm','in'].includes(st.settings.lenUnit)) st.settings.lenUnit = 'cm';
   if(!REMIND_LABEL[st.settings.bodyRemind]) st.settings.bodyRemind = 'monthly';
@@ -1188,7 +1743,7 @@ function tick(){
 /* =========================================================
    Navigation
    ========================================================= */
-const ui = { tab:'', scroll:{}, exQ:'', exCat:'All', histLimit:40, calMonth:null, exMetric:'e1', hideNudge:false, progView:'training', cardioType:'all' };
+const ui = { tab:'', scroll:{}, exQ:'', exCat:'All', histLimit:40, calMonth:null, exMetric:'e1', hideNudge:false, progView:'training', cardioType:'all', histOpen:new Set() };
 const TABS = [['workout','dumbbell','Workout'],['history','clock','History'],['progress','chart','Progress'],['exercises','list','Exercises'],['settings','gear','Settings']];
 function setTab(tab){
   if(tab === ui.tab){ window.scrollTo({ top:0, behavior:'smooth' }); return; }
@@ -1210,7 +1765,7 @@ function render(){
 function renderWorkout(){
   const v = $('#v-workout');
   if(S.active){ renderActive(v); return; }
-  const wk = weekStats(), st = streaks(), acts = wk.count + wk.cardio, anyAct = S.sessions.length + S.cardio.length;
+  const wk = weekStats(), acts = wk.count + wk.cardio, anyAct = S.sessions.length + S.cardio.length;
   const routines = S.routines.map(r => {
     const last = S.sessions.filter(s => s.routineId === r.id).reduce((m, s) => s.start > m ? s.start : m, '');
     const names = r.items.map(itemName);
@@ -1220,30 +1775,29 @@ function renderWorkout(){
       <div class="routine-foot"><span class="small muted">${(n => [n ? plural(n,'exercise') : '', r.items.length - n ? `${r.items.length - n} cardio` : ''].filter(Boolean).join(' + ') || '0 exercises')(r.items.filter(i => !i.cardio).length)} · ${last ? 'last done ' + relPhrase(last) : 'not done yet'}</span>
       <button class="btn btn-sm btn-primary" data-a="start-routine" data-id="${r.id}">${ic('play')} Start</button></div></div>`;
   }).join('');
-  const lb = S.settings.lastBackup;
-  const needBackup = !ui.hideNudge && anyAct >= 3 && (!lb || Date.now() - new Date(lb) > 14*864e5);
+  // The Workout tab keeps to training: start, quick log and routines (from 5.0). The week staircase
+  // and the backup and body nudges are on Progress, the install card is in Settings.
   v.innerHTML = `
     <div class="topbar"><span></span><button class="btn-icon" data-a="plates" aria-label="Plate calculator">${ic('plates')}</button></div>
-    <h1 class="large-title">Workout</h1>
+    <div class="greet"><div class="greet-k">${lockup(38)}</div><h1 class="large-title greet-t">${greeting()}</h1></div>
     <div class="hero">
       <div class="hero-k">${acts ? `${S.cardio.length ? actWord(acts) : plural(acts,'workout')} this week` : anyAct ? 'Nothing logged this week yet' : 'Let’s get started'}</div>
       <div class="hero-t">Ready to train?</div>
-      <button class="btn btn-block hero-btn" data-a="start-empty">${ic('plus')} Start Empty Workout</button>
-      <button class="btn btn-block hero-btn2" data-a="log-past">${ic('check')} Log a Finished Workout</button>
-      <button class="btn btn-block hero-btn2" data-a="log-cardio">${ic('run')} Log Cardio</button>
+      <div class="hero-s">Pick one of your routines, or start empty and add exercises as you go.</div>
+      <button class="btn btn-block hero-btn" data-a="start-pick">${ic('play')} Start a Workout</button>
     </div>
-    ${!anyAct ? '' : `<div class="tiles three" style="margin-top:12px">
-      ${tile('This week', acts, (S.cardio.length ? actWord(acts) : plural(acts,'workout')).replace(/^\d+ /,''), 'data-a="tab" data-tab="progress"')}
-      ${tile('Time', fmtTrained(wk.time), 'this week', 'data-a="tab" data-tab="progress"')}
-      ${tile(`${ic('flame')}Streak`, st.cur + '<small>wk</small>', st.cur ? 'keep it going' : 'start today', 'data-a="tab" data-tab="progress"')}
-    </div>`}
-    ${needBackup ? `<div class="nudge"><div class="ico">${ic('shield')}</div><div class="grow"><div class="t">Back up your workouts</div><div class="s">Last backup: ${lb ? relDay(lb).toLowerCase() : 'never'}</div></div><button class="btn btn-sm btn-tinted" data-a="export-file">Back Up</button><button class="btn-icon" style="background:none;color:var(--label-3)" data-a="nudge-x" aria-label="Dismiss">${ic('x')}</button></div>` : ''}
-    ${bodyNudge()}
-    ${installCard()}
+    <div class="quick">
+      <div class="quick-h"><b>Already trained?</b><span>Log it in seconds</span></div>
+      <div class="quick-row">
+        <button data-a="log-past"><span class="qc">${ic('dumbbell')}</span>Gym or class</button>
+        <button data-a="log-cardio"><span class="qc">${ic('run')}</span>Run or ride</button>
+        <button data-a="body-log"><span class="qc">${ic('scale')}</span>Body stats</button>
+      </div>
+    </div>
     ${!anyAct ? `<div class="card" style="margin-top:12px">
-      <div style="font-weight:700;font-size:20px">Welcome to IronTrack 👋</div>
+      <div style="font-weight:800;font-size:20px">Welcome to ${APP.name} 👋</div>
       <ol class="steps">
-        <li><span><b>Start</b> one of the routines below, or an empty workout and add exercises as you go. Already trained? <b>Log a finished workout</b> instead. Warming up on the treadmill or Stair Master? Add it from <b>Add Exercises → Cardio</b>. Just went for a run or ride? <b>Log Cardio</b>.</span></li>
+        <li><span>Tap <b>Start a Workout</b> and pick a routine, or start empty and add exercises as you go. Already trained? Log a class, run or ride under <b>Already trained?</b> Warming up on the treadmill or Stair Master? Add it from <b>Add Exercises → Cardio</b>.</span></li>
         <li><span><b>Tick ✓</b> each set when you finish it — the rest timer starts by itself.</span></li>
         <li><span><b>Finish</b> to save. Your PRs, charts and streaks build up as you train.</span></li>
       </ol>
@@ -1254,12 +1808,46 @@ function renderWorkout(){
   `;
 }
 
+function greeting(){
+  const h = new Date().getHours(), n = String(S.settings.name || '').trim();
+  return `Good ${h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'}${n ? ', ' + esc(n) : ''}`;
+}
+async function startPicker(){
+  if(!S.routines.length) return startWorkout({});
+  const k = await actionSheet({ title:'Start a workout', actions:[...S.routines.map(r => ({ k:r.id, label:r.name })), { k:'__empty', label:'Empty Workout (add as you go)' }] });
+  if(k === '__empty') startWorkout({}); else if(k) startRoutine(k);
+}
+async function editName(){
+  const v = await promptDlg('Display name', 'Shown in the greeting on the Workout tab.', S.settings.name || '', 'First name');
+  if(v == null) return;
+  S.settings.name = v.trim().slice(0, 30); save(); render();
+}
+function backupNudge(){
+  const lb = S.settings.lastBackup;
+  if(ui.hideNudge || S.sessions.length + S.cardio.length < 3 || (lb && Date.now() - new Date(lb) <= 14*864e5)) return '';
+  return `<div class="nudge"><div class="ico">${ic('shield')}</div><div class="grow"><div class="t">Back up your workouts</div><div class="s">Last backup: ${lb ? relDay(lb).toLowerCase() : 'never'}</div></div><button class="btn btn-sm btn-tinted" data-a="export-file">Back Up</button><button class="btn-icon" style="background:none;color:var(--label-3)" data-a="nudge-x" aria-label="Dismiss">${ic('x')}</button></div>`;
+}
+/* This week as a staircase: every session logged is one step up. Days with nothing logged stay
+   level, days still to come are outlines. "All time" counts every workout and cardio activity. */
+const lifeSteps = () => S.sessions.length + S.cardio.length;
+function weekStepsHTML(){
+  const day0 = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()), now = new Date(), w0 = startOfWeek(now);
+  const idx = d => Math.round((day0(d) - day0(w0)) / 864e5), today = idx(now), per = [0, 0, 0, 0, 0, 0, 0];
+  [...S.sessions, ...S.cardio].forEach(x => { const i = idx(new Date(x.start)); if(i >= 0 && i < 7) per[i]++; });
+  const total = per.reduce((a, b) => a + b, 0), last = per.reduce((m, n, i) => n && i <= today ? i : m, -1);
+  let lvl = 0;
+  const cols = per.map((n, i) => { lvl += n;
+    return `<span class="ws-d ${i > today ? 'future' : n ? 'on' : 'flat'}${i === today ? ' today' : ''}${i === last ? ' ball' : ''}" style="--h:${lvl}"><i>${n > 1 ? `<b>+${n}</b>` : ''}</i><em>${'MTWTFSS'[i]}</em></span>`; }).join('');
+  return `<div class="wsteps" role="img" aria-label="This week: ${plural(total, 'session')}. ${lifeSteps()} all time.">
+    <span class="ws-h"><span><span class="ws-k">This week</span><span class="ws-t"><b class="num">${total}</b> ${total === 1 ? 'step' : 'steps'} up</span></span><span class="ws-life"><span class="ws-k">All time</span><span class="ws-n num">${String(lifeSteps()).padStart(3, '0')}</span></span></span>
+    <span class="ws-stair" style="--n:${Math.max(4, total)}">${cols}</span></div>`;
+}
 function installCard(){
   if(!isHosted || isStandalone() || prefGet('it_hide_install') === '1') return '';
   const how = isIOS
     ? `Tap <b>Share</b> ${ic('share')} in Safari, then <b>Add to Home Screen</b>.`
     : `Use your browser’s <b>Install app</b> or <b>Add to Home Screen</b> option.`;
-  return `<div class="nudge" style="align-items:flex-start"><div class="ico" style="background:var(--blue-soft);color:var(--blue)">${ic('phone')}</div><div class="grow"><div class="t">Install IronTrack</div><div class="s" style="line-height:1.45;margin-top:2px">${how} It opens full screen and works offline. Data saved in this browser tab isn’t shared with the installed app.</div></div><button class="btn-icon" style="background:none;color:var(--label-3)" data-a="install-x" aria-label="Dismiss">${ic('x')}</button></div>`;
+  return `<div class="nudge" style="align-items:flex-start"><div class="ico" style="background:var(--blue-soft);color:var(--blue)">${ic('phone')}</div><div class="grow"><div class="t">Install ${APP.name}</div><div class="s" style="line-height:1.45;margin-top:2px">${how} It opens full screen and works offline. Data saved in this browser tab isn’t shared with the installed app.</div></div><button class="btn-icon" style="background:none;color:var(--label-3)" data-a="install-x" aria-label="Dismiss">${ic('x')}</button></div>`;
 }
 
 /* One editor context for the live workout. Re-renders (e.g. after creating an
@@ -2419,14 +3007,26 @@ async function routineMenu(id){
 /* =========================================================
    History tab
    ========================================================= */
+/* History card: the exercise list stays folded until it's opened (5.0). The card is a div holding two
+   buttons, so the toggle isn't nested inside the open-workout button. Open cards are kept in
+   ui.histOpen, so a re-render doesn't fold them again. */
+function sessExLine({ a, e }){
+  if(a) return `<div class="sess-cd" style="--c:${CT[a.type].c}">${ic(CT[a.type].icon)}${esc(cdLabel(a.type, a.indoor))} <span class="faint">· ${esc(cdSummary(a))}</span></div>`;
+  const b = entryBest(e.sets);
+  return `<div><span class="faint num">${e.sets.length} ×</span> ${esc(e.name)} <span class="faint">${bestLabel(b) ? '· ' + bestLabel(b) : ''}</span></div>`;
+}
 function sessCard(s, prs){
-  const d = new Date(s.start), dur = sessDur(s), items = sessItems(s), nSets = sessSets(s);
-  const ex = items.slice(0, 4).map(({ a, e }) => { if(a) return `<div class="sess-cd" style="--c:${CT[a.type].c}">${ic(CT[a.type].icon)}${esc(cdLabel(a.type, a.indoor))} <span class="faint">· ${esc(cdSummary(a))}</span></div>`; const b = entryBest(e.sets); return `<div><span class="faint num">${e.sets.length} ×</span> ${esc(e.name)} <span class="faint">${bestLabel(b) ? '· ' + bestLabel(b) : ''}</span></div>`; }).join('');
-  return `<button class="sess" data-a="sess" data-id="${esc(s.id)}">
-    <div class="sess-top"><span class="sess-name">${esc(s.name)}</span><span class="sess-date">${d.toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short' })}</span></div>
-    <div class="sess-stats">${dur ? `<span>${ic('clock')}${fmtDurShort(dur)}</span>` : ''}${nSets ? `<span>${ic('check')}${plural(nSets,'set')}</span>` : ''}${prs ? `<span class="badge">${ic('trophy')}${plural(prs.length,'PR')}</span>` : ''}</div>
-    <div class="sess-ex">${ex}${items.length > 4 ? `<div class="faint">+${items.length - 4} more</div>` : ''}</div>
-  </button>`;
+  const d = new Date(s.start), dur = sessDur(s), items = sessItems(s), nSets = sessSets(s), open = ui.histOpen.has(s.id);
+  const nEx = items.filter(x => !x.a).length, nCd = items.length - nEx;
+  const label = [nEx ? plural(nEx, 'exercise') : '', nCd ? `${nCd} cardio` : ''].filter(Boolean).join(' + ');
+  return `<div class="sess sess-fold${open ? ' open' : ''}">
+    <button class="sess-open" data-a="sess" data-id="${esc(s.id)}">
+      <span class="sess-top"><span class="sess-name">${esc(s.name)}</span><span class="sess-date">${d.toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short' })}</span></span>
+      <span class="sess-stats">${dur ? `<span>${ic('clock')}${fmtDurShort(dur)}</span>` : ''}${nSets ? `<span>${ic('check')}${plural(nSets,'set')}</span>` : ''}${prs ? `<span class="badge">${ic('trophy')}${plural(prs.length,'PR')}</span>` : ''}</span>
+    </button>
+    ${items.length ? `<button class="sess-more" data-a="sess-fold" data-id="${esc(s.id)}" aria-expanded="${open}" aria-controls="sx-${esc(s.id)}"><span>${label}</span>${ic('chevR')}</button>
+    <div class="sess-ex" id="sx-${esc(s.id)}"${open ? '' : ' hidden'}>${items.map(sessExLine).join('')}</div>` : ''}
+  </div>`;
 }
 function renderHistory(){
   const v = $('#v-history');
@@ -2472,8 +3072,10 @@ function calendarHTML(){
 function renderProgress(){
   const v = $('#v-progress');
   if(!ui.calMonth){ const n = new Date(); ui.calMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
-  const head = `<div class="topbar"></div><h1 class="large-title">Progress</h1>
-    <div class="seg lg" style="margin-bottom:16px">${[['training','Training'],['cardio','Cardio'],['body','Body']].map(([k, l]) => `<button data-a="prog-view" data-v="${k}" class="${ui.progView === k ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  // The backup and body nudges and the week staircase live here from 5.0 (they used to be on the Workout tab).
+  const nudges = backupNudge() + bodyNudge();
+  const head = `<div class="topbar"></div><h1 class="large-title">Progress</h1>${nudges ? `<div class="prog-nudges">${nudges}</div>` : ''}
+    <div class="seg lg" style="margin-bottom:16px">${[['training','Training'],['cardio','Cardio'],['body','Body']].map(([k, l]) => `<button data-a="prog-view" data-v="${k}" class="${ui.progView === k ? 'on' : ''}">${l}</button>`).join('')}</div>${ui.progView === 'training' ? `<div class="prog-steps">${weekStepsHTML()}</div>${recapCardHTML()}` : ''}`;
   if(ui.progView === 'body'){ renderBody(v, head); return; }
   if(ui.progView === 'cardio'){ renderCardio(v, head); return; }
   if(!S.sessions.length){ v.innerHTML = head + emptyHTML('chart', 'No stats yet', 'Finish your first workout and your trends, records and streaks will appear here.', `<button class="btn btn-primary" data-a="tab" data-tab="workout">Start a Workout</button>`); return; }
@@ -2519,7 +3121,7 @@ function renderProgress(){
 }
 
 /* Weekly time trained: lifting in the accent colour, cardio in teal. */
-const WK_COLORS = { lift:'#0a84ff', cardio:'#66d4cf' };
+const WK_COLORS = { get lift(){ return ACCENT; }, cardio:'#66d4cf' };  // accent + teal
 /* ---------- Charts (inline SVG, single hue, hover/tap tooltips) ---------- */
 function niceScale(min, max, n=4){
   if(min === max){ min = Math.max(0, min - 1); max = max + 1; }
@@ -2531,7 +3133,7 @@ function niceScale(min, max, n=4){
 }
 const fmtAxis = v => v >= 1000 ? fmtNum(v/1000, v >= 100000 ? 0 : 1) + 'k' : fmtNum(v, 1);
 const shortDate = x => new Date(x).toLocaleDateString(undefined, { day:'numeric', month:'short' });
-function lineChart(el, pts, { fmt, ring = 'var(--card-2)', color = '#0a84ff', axis = fmtAxis, invert = false }){
+function lineChart(el, pts, { fmt, ring = 'var(--card-2)', color = ACCENT, axis = fmtAxis, invert = false }){
   if(!pts.length){ el.innerHTML = '<div class="chart-empty">No data yet</div>'; return; }
   const W = el.clientWidth || 320, H = el.clientHeight || 190;
   const L = 6, R = 46, T = 30, B = 22;
@@ -2569,7 +3171,7 @@ function lineChart(el, pts, { fmt, ring = 'var(--card-2)', color = '#0a84ff', ax
   el.onpointermove = el.onpointerdown = e => show(e.clientX - el.getBoundingClientRect().left);
   el.onpointerleave = hide;
 }
-function barChart(el, bars, { fmt, aria = 'Weekly volume bar chart', color = '#0a84ff' }){
+function barChart(el, bars, { fmt, aria = 'Weekly volume bar chart', color = ACCENT }){
   const W = el.clientWidth || 320, H = el.clientHeight || 190;
   const L = 2, R = 44, T = 30, B = 22;
   const [, y1, ticks] = niceScale(0, Math.max(1, ...bars.map(b => b.value)));
@@ -2635,7 +3237,7 @@ function sparkSVG(ser){
   const W = 56, H = 22, xs = ser.map(p => dateMs(p.date)), ys = ser.map(p => p.v);
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
   const X = x => 2 + (x - x0) / ((x1 - x0) || 1) * (W - 4), Y = y => 2 + (1 - (y - y0) / ((y1 - y0) || 1)) * (H - 4);
-  return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline fill="none" stroke="#0a84ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${ser.map(p => X(dateMs(p.date)).toFixed(1) + ',' + Y(p.v).toFixed(1)).join(' ')}"/></svg>`;
+  return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline fill="none" stroke="${ACCENT}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${ser.map(p => X(dateMs(p.date)).toFixed(1) + ',' + Y(p.v).toFixed(1)).join(' ')}"/></svg>`;
 }
 function bodyNudge(){
   const days = REMIND_DAYS[S.settings.bodyRemind];
@@ -3297,7 +3899,135 @@ function exportCardioCSV(){
       a.effort ? EFFORT[a.effort].label : '', a.hr || '', a.elev ? Math.round(toElev(a.elev)) : '', a.cal || '', a.indoor ? 'Yes' : '', a.notes || '',
       CT[a.type].erg && p500(a) ? fmtClock(p500(a)) : '', a.level || '', a.floors || '', a.incline || '', a.spm || '', a.damper || '', inWorkout(a) ? S.sessions.find(s => s.id === a.sess).name : '']);
   }
-  saveFile(`irontrack-cardio-${dayKey(new Date())}.csv`, toCSV(rows), 'text/csv').then(ok => { if(ok) toast('Cardio exported'); });
+  saveFile(`repbyrep-cardio-${dayKey(new Date())}.csv`, toCSV(rows), 'text/csv').then(ok => { if(ok) toast('Cardio exported'); });
+}
+
+/* =========================================================
+   Monthly Recap — a shareable image of this month (5.0)
+   ========================================================= */
+const RECAP = { bg:['#1c2110', '#0b0c0f'], gold:['#e4ff7a', '#c6f135', '#9ccb16'], frame:'rgba(198,241,53,.45)', soft:'#aab38a',
+  text:'#f4f5ef', textSoft:'rgba(244,245,239,.72)', cell:'rgba(198,241,53,.07)', cellLine:'rgba(198,241,53,.32)' };
+const RECAP_FONT = '"Archivo", -apple-system, "Segoe UI", Roboto, sans-serif';
+/* In the picked accent: the volt colours above unless another one is chosen. */
+function recapColors(){
+  const a = accentPick(); if(a === ACCENTS[0]) return RECAP;
+  const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mix = (h, base, t) => '#' + rgb(h).map((v, i) => Math.round(v * t + rgb(base)[i] * (1 - t)).toString(16).padStart(2, '0')).join('');
+  const c = rgb(a.color).join(',');
+  return { ...RECAP, bg:[mix(a.color, RECAP.bg[1], .12), RECAP.bg[1]], gold:[a.hi, a.color, a.lo], frame:`rgba(${c},.45)`, soft:mix(a.color, '#a0a4aa', .35), cell:`rgba(${c},.07)`, cellLine:`rgba(${c},.32)` };
+}
+/* The logo as a standalone SVG for the image. The accent recolours the on-screen logo through CSS,
+   which an <img> can't see, so the gradient colours actually in use are written onto the copy. */
+function markForImage(size){
+  const box = document.createElement('div'); box.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+  box.innerHTML = logoMark(size); document.body.appendChild(box);
+  box.querySelectorAll('stop').forEach(st => st.setAttribute('stop-color', getComputedStyle(st).stopColor));
+  const svg = box.innerHTML; box.remove(); return svg;
+}
+function monthStats(now = new Date()){
+  const s = new Date(now.getFullYear(), now.getMonth(), 1), e = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const inR = x => { const t = new Date(x.start); return t >= s && t < e; };
+  const ses = S.sessions.filter(inR), car = S.cardio.filter(inR), prs = cache().prs, cprs = cardioCache().prs;
+  const sec = ses.reduce((a, x) => a + (sessDur(x) || 0) / 1000, 0) + car.reduce((a, x) => a + (x.dur || 0), 0);
+  const prCount = ses.reduce((a, x) => a + (prs[x.id] || []).length, 0) + car.reduce((a, x) => a + (cprs[x.id] || []).length, 0);
+  let top = null;
+  ses.forEach(x => x.entries.forEach(en => en.sets.forEach(st => { if(st.w > 0 && !st.t && (!top || st.w > top.w)) top = { w:st.w, r:st.r, name:en.name }; })));
+  return { month:s.toLocaleDateString(undefined, { month:'long', year:'numeric' }), monthShort:s.toLocaleDateString(undefined, { month:'long' }),
+    count:ses.length + car.length, sec, prCount, top, km:sumDist(car) };
+}
+async function recapCanvas(){
+  const m = monthStats(), R = recapColors(), F = RECAP_FONT, W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+  try { await Promise.all(['800 60px "Archivo"', '600 30px "Archivo"'].map(f => document.fonts.load(f))); } catch(e){}
+  const bg = x.createRadialGradient(W/2, 260, 40, W/2, 420, 900); bg.addColorStop(0, R.bg[0]); bg.addColorStop(1, R.bg[1]);
+  x.fillStyle = bg; x.fillRect(0, 0, W, H);
+  const gold = x.createLinearGradient(0, 0, W, H); gold.addColorStop(0, R.gold[0]); gold.addColorStop(.5, R.gold[1]); gold.addColorStop(1, R.gold[2]);
+  // a faint staircase behind everything
+  x.save(); x.strokeStyle = R.gold[1]; x.globalAlpha = .1; x.lineWidth = 14; x.lineCap = x.lineJoin = 'round'; x.beginPath(); x.moveTo(-40, 1230);
+  for(let i = 0; i < 7; i++){ x.lineTo(150 + i*170, 1230 - i*170); x.lineTo(150 + i*170, 1060 - i*170); }
+  x.stroke(); x.restore();
+  x.strokeStyle = R.frame; x.lineWidth = 3; x.strokeRect(40, 40, W - 80, H - 80);
+  const img = new Image(); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent((svg => svg.includes('xmlns=') ? svg : svg.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"'))(markForImage(200)));
+  try { await img.decode(); x.drawImage(img, W/2 - 100, 110, 200, 200); } catch(e){}
+  x.textAlign = 'center'; x.fillStyle = gold;
+  x.font = `italic 900 64px ${F}`; x.fillText(APP.word[0], W/2, 390);
+  x.fillStyle = R.soft; x.font = `800 26px ${F}`; x.letterSpacing = '10px'; x.fillText(APP.word[1], W/2 + 5, 432); x.letterSpacing = '0px';
+  const who = String(S.settings.name || '').trim().split(/\s+/)[0];
+  x.fillStyle = R.textSoft; x.font = `600 38px ${F}`; x.fillText(`${who ? who + '’s' : 'My'} ${m.month}`, W/2, 540);
+  x.fillStyle = R.text; x.font = `800 230px ${F}`; x.fillText(String(m.count), W/2, 790);
+  x.fillStyle = gold; x.font = `800 40px ${F}`; x.fillText(m.count === 1 ? 'SESSION' : 'SESSIONS', W/2, 850);
+  const streak = streaks().cur;
+  const cells = [[fmtTrained(m.sec), 'TRAINED'], [String(m.prCount), m.prCount === 1 ? 'RECORD' : 'RECORDS'], m.km ? [fmtNum(m.km, 1) + ' km', 'CARDIO'] : [String(streak), 'WEEK STREAK']];
+  cells.forEach(([v, k], i) => {
+    const cx = W/2 + (i - 1) * 300;
+    x.fillStyle = R.cell; x.strokeStyle = R.cellLine; x.lineWidth = 2;
+    x.beginPath(); if(x.roundRect) x.roundRect(cx - 135, 930, 270, 170, 22); else x.rect(cx - 135, 930, 270, 170); x.fill(); x.stroke();
+    x.fillStyle = R.text; x.font = `800 56px ${F}`; x.fillText(v, cx, 1020);
+    x.fillStyle = R.soft; x.font = `800 22px ${F}`; x.fillText(k, cx, 1064);
+  });
+  if(m.top){ x.fillStyle = R.textSoft; x.font = `600 32px ${F}`; x.fillText(`Heaviest lift: ${m.top.name} ${fmtW(m.top.w)} ${U()} × ${m.top.r}`, W/2, 1170); }
+  x.fillStyle = R.soft; x.font = `800 24px ${F}`; x.letterSpacing = '6px'; x.fillText(APP.tagline.toUpperCase(), W/2 + 3, 1250); x.letterSpacing = '0px';
+  return cv;
+}
+function recapCardHTML(){
+  const m = monthStats(); if(!m.count) return '';
+  return `<button class="nudge recap-row" data-a="recap"><div class="ico">${ic('image')}</div><div class="grow"><div class="t">Monthly Recap</div><div class="s">Your ${esc(m.monthShort)} as an image to share · ${plural(m.count, 'session')}</div></div>${chev()}</button>`;
+}
+/* Sharing: the image file is made before the sheet opens, so tapping Share calls navigator.share straight
+   away. iPhones only show the share sheet (Save Image, Copy, apps, Files) for a call made right inside the
+   tap, and only on https pages. Where sharing isn't offered (the plain-http test server, some desktop
+   browsers) the picture can still be pressed and held to save it, and computers download it instead. */
+async function openRecap(){
+  const cv = await recapCanvas(), blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if(!blob){ toast('Couldn’t make the image'); return; }
+  const url = URL.createObjectURL(blob), name = `repbyrep-recap-${dayKey(new Date())}.png`;
+  const file = new File([blob], name, { type:'image/png' });
+  let canShare = false; try { canShare = !!(navigator.share && navigator.canShare && navigator.canShare({ files:[file] })); } catch(e){}
+  const hold = isIOS ? 'Press and hold the picture, then tap <b>Save to Photos</b> or <b>Share</b>.' : '';
+  openSheet({ full:true,
+    render: () => `${sheetHead(btnClose(), 'Monthly Recap', '')}<div class="sheet-body">
+      <img class="recap-img" src="${url}" alt="Your monthly recap">
+      ${canShare || !isIOS ? `<div class="btn-col"><button class="btn btn-block btn-primary" data-a="img">${ic(canShare ? 'share' : 'download')} ${canShare ? 'Share Image' : 'Save Image'}</button></div>` : ''}
+      <div class="caption">${canShare ? 'Save it to Photos, send it in WhatsApp or post it to Instagram.' + (hold ? ' Or ' + hold[0].toLowerCase() + hold.slice(1) : '') : hold || 'Saves the picture to your downloads.'} It shows this month so far.</div></div>`,
+    actions:{
+      img: () => {
+        if(canShare){
+          navigator.share({ files:[file] }).catch(e => { if(e && e.name !== 'AbortError') toast(isIOS ? 'Couldn’t open sharing — press and hold the picture instead' : 'Couldn’t open sharing'); });
+          return;
+        }
+        const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); toast('Image downloaded');
+      }
+    },
+    onClose: () => setTimeout(() => URL.revokeObjectURL(url), 1000) });
+}
+
+/* =========================================================
+   What's new — shown once, the first time someone who already had data opens a new version.
+   Brand-new users skip it. Settings → What's new opens it again. Add new versions to the top.
+   ========================================================= */
+const WHATS_NEW = [
+  { v:'5.0', title:'New look, same app', intro:'IronTrack is now <b>Rep by Rep RSA</b>. Your workouts, routines, records and settings are all still here. There’s nothing to move or set up.', items:[
+    ['sparkle', 'A whole new look', 'Iron and volt, with every session one step up the staircase.'],
+    ['palette', 'Pick your colour', 'Settings → Accent colour: volt, electric orange, light blue, dark blue or violet.'],
+    ['dumbbell', 'A tidier Workout tab', 'Just <b>Start a Workout</b>, <b>Already trained?</b> and your routines. Your week’s steps and reminders are on Progress.'],
+    ['clock', 'Neater History', 'Each workout shows its exercises when you tap the row at the bottom of the card.'],
+    ['image', 'Monthly Recap', 'Share your month as an image, from Progress.'],
+    ['person', 'Your name', 'Add a display name in Settings and the Workout tab greets you.']
+  ], note:'Your home-screen icon may show the old logo for a while. It’s the same app, and your data is unaffected.' }
+];
+const WN_KEY = 'rxr_seen_version';
+function openWhatsNew(){
+  const w = WHATS_NEW[0];
+  openSheet({ full:true,
+    render: () => `${sheetHead(btnClose('Done', true), '', '')}<div class="sheet-body wn">
+      <div class="wn-top">${lockup(44)}<span class="wn-v">Version ${esc(w.v)}</span></div>
+      <h2 class="wn-t">${w.title}</h2>
+      <p class="wn-intro">${w.intro}</p>
+      <div class="wn-list">${w.items.map(([icon, t, d]) => `<div class="wn-item"><span class="wn-ico">${ic(icon)}</span><div><div class="wn-it">${t}</div><div class="wn-id">${d}</div></div></div>`).join('')}</div>
+      ${w.note ? `<div class="caption">${w.note}</div>` : ''}
+      <div class="btn-col"><button class="btn btn-block btn-primary" data-a="close">Let’s Go</button></div></div>`,
+    onClose: () => prefSet(WN_KEY, APP.version)
+  });
 }
 
 /* =========================================================
@@ -3330,11 +4060,24 @@ function renderExercises(){
 /* =========================================================
    Settings tab
    ========================================================= */
+function accentPickerHTML(){
+  const cur = accentPick();
+  return `<div class="group-h">Accent colour</div>
+    <div class="list"><div class="accent-pick" role="group" aria-label="Accent colour">${ACCENTS.map(a => { const on = a === cur;
+      return `<button data-a="accent" data-v="${a.id}" aria-pressed="${on}" style="--sw:${a.color};--sw-on:${a.on}"><i>${on ? ic('check') : ''}</i>${esc(a.name)}</button>`; }).join('')}</div></div>
+    <div class="caption">Changes the highlight colour on this phone only.</div>`;
+}
 const sico = (name, color) => `<span class="set-ico" style="background:${color}">${ic(name)}</span>`;
 function renderSettings(){
   const st = S.settings, u = st.unit, v = $('#v-settings');
   const sw = (key, label, icon, color) => `<label class="row has-ico">${sico(icon, color)}<span class="grow">${label}</span><input type="checkbox" class="switch" data-set="${key}" ${st[key] ? 'checked' : ''}></label>`;
   v.innerHTML = `<div class="topbar"></div><h1 class="large-title">Settings</h1>
+    ${installCard()}
+    <div class="list" style="margin-top:16px">
+      <button class="row tap has-ico" data-a="set-name">${sico('person', '#8e8e93')}<span class="grow">Display name</span><span class="trail">${esc(st.name || 'Not set')}${chev()}</span></button>
+      <button class="row tap has-ico" data-a="whats-new">${sico('sparkle', '#8e8e93')}<span class="grow">What’s new</span><span class="trail">Version ${APP.version}${chev()}</span></button>
+    </div>
+    ${accentPickerHTML()}
     <div class="group-h">Units</div>
     <div class="list"><div class="row has-ico">${sico('scale','#5e5ce6')}<span class="grow">Weight unit</span><div class="seg" style="width:120px"><button data-a="unit" data-v="kg" class="${u === 'kg' ? 'on' : ''}">kg</button><button data-a="unit" data-v="lb" class="${u === 'lb' ? 'on' : ''}">lb</button></div></div>
       <div class="row has-ico">${sico('ruler','#5e5ce6')}<span class="grow">Measurements</span><div class="seg" style="width:120px"><button data-a="len-unit" data-v="cm" class="${st.lenUnit === 'cm' ? 'on' : ''}">cm</button><button data-a="len-unit" data-v="in" class="${st.lenUnit === 'in' ? 'on' : ''}">in</button></div></div>
@@ -3377,7 +4120,7 @@ function renderSettings(){
     </div>
     <div class="caption">Your workouts, cardio and measurements are saved in this browser on this device only. Last backup: <b>${st.lastBackup ? relDay(st.lastBackup).toLowerCase() : 'never'}</b>. Save a backup file to iCloud Drive regularly so nothing gets lost.</div>
     <div class="list" style="margin-top:24px"><button class="row tap red" data-a="erase"><span class="grow center">Erase All Data</span></button></div>
-    <div class="caption center" style="margin-top:24px">IronTrack 4.7 · ${plural(S.sessions.length,'workout')} · ${S.cardio.length ? S.cardio.length + ' cardio · ' : ''}${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
+    <div class="caption center" style="margin-top:24px">${APP.name} ${APP.version} · ${plural(S.sessions.length,'workout')} · ${S.cardio.length ? S.cardio.length + ' cardio · ' : ''}${plural(S.exercises.length,'exercise')} · ${plural(S.routines.length,'routine')}</div>`;
   v.onchange = e => {
     const k = e.target.dataset.set; if(!k) return;
     S.settings[k] = e.target.checked; save();
@@ -3428,7 +4171,7 @@ async function saveFile(name, text, type){
   setTimeout(() => URL.revokeObjectURL(url), 5000);
   return true;
 }
-async function exportFile(){ if(await saveFile(`irontrack-backup-${dayKey(new Date())}.json`, backupJSON(), 'application/json')){ markBackup(); toast('Backup saved'); } }
+async function exportFile(){ if(await saveFile(`repbyrep-backup-${dayKey(new Date())}.json`, backupJSON(), 'application/json')){ markBackup(); toast('Backup saved'); } }
 async function copyText(text){
   try { await navigator.clipboard.writeText(text); return true; } catch(e){}
   const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;opacity:0';
@@ -3442,7 +4185,7 @@ async function copyCode(){
 }
 function parseBackup(text){
   let o;
-  try { o = JSON.parse(String(text).trim()); } catch(e){ throw new Error('That doesn’t look like IronTrack backup data.'); }
+  try { o = JSON.parse(String(text).trim()); } catch(e){ throw new Error('That doesn’t look like backup data from this app.'); }
   if(o && o.data && Array.isArray(o.data.sessions)) o = o.data;
   if(o && Array.isArray(o.sessions)){ const n = normalize(o); return { exercises:n.exercises, sessions:n.sessions, routines:n.routines, settings:o.settings ? n.settings : null, body:o.body ? n.body : null, cardio:Array.isArray(o.cardio) ? n.cardio : null }; }
   if(o && Array.isArray(o.history) && Array.isArray(o.exercises)){ const c = fromV3(o); return { exercises:c.exercises, sessions:c.sessions, routines:[], settings:null, body:null, cardio:null }; }
@@ -3490,7 +4233,7 @@ async function importText(text){
   save(); refresh(); toast('Backup restored');
 }
 async function pasteCode(){
-  const r = await dialog({ title:'Paste backup code', message:'Paste a code copied from IronTrack — this works with codes from the old v3 app too.', input:{ multiline:true, placeholder:'Paste here…' }, buttons:[{ k:'cancel', label:'Cancel' }, { k:'ok', label:'Import', bold:true }] });
+  const r = await dialog({ title:'Paste backup code', message:'Paste a code copied from this app (or from IronTrack, its old name) — codes from the old v3 app work too.', input:{ multiline:true, placeholder:'Paste here…' }, buttons:[{ k:'cancel', label:'Cancel' }, { k:'ok', label:'Import', bold:true }] });
   if(r.k === 'ok' && r.value.trim()) importText(r.value);
 }
 function toCSV(rows){
@@ -3503,13 +4246,13 @@ function exportCSV(){
     const d = new Date(s.start), dur = sessDur(s);
     s.entries.forEach(e => e.sets.forEach((x, i) => rows.push([dayKey(d), s.legacy ? '' : fmtTime(s.start), s.name, e.name, e.cat, i+1, fmtW(x.w), x.r || '', x.t || '', x.w && !x.t ? fmtW1(e1rm(x.w, x.r)) : '', dur ? Math.round(dur/60000) : '', s.notes || ''])));
   }
-  saveFile(`irontrack-${dayKey(new Date())}.csv`, toCSV(rows), 'text/csv').then(ok => { if(ok) toast('CSV exported'); });
+  saveFile(`repbyrep-workouts-${dayKey(new Date())}.csv`, toCSV(rows), 'text/csv').then(ok => { if(ok) toast('CSV exported'); });
 }
 function exportBodyCSV(){
   if(!S.body.entries.length){ toast('No body measurements logged yet'); return; }
   const rows = [['Date', ...BODY_METRICS.map(m => `${m.label} (${metricUnit(m)})`)]];
   S.body.entries.slice().sort((a, b) => a.date < b.date ? -1 : 1).forEach(e => rows.push([e.date, ...BODY_METRICS.map(m => e[m.k] != null ? fmtMetric(m, e[m.k]) : '')]));
-  saveFile(`irontrack-body-${dayKey(new Date())}.csv`, toCSV(rows), 'text/csv').then(ok => { if(ok) toast('Body metrics exported'); });
+  saveFile(`repbyrep-body-${dayKey(new Date())}.csv`, toCSV(rows), 'text/csv').then(ok => { if(ok) toast('Body metrics exported'); });
 }
 async function eraseAll(){
   if(!(await confirmDlg('Erase all data?', 'Every workout, cardio activity, exercise, routine and body measurement will be deleted from this device. This can’t be undone — export a backup first if you might want it.', 'Erase Everything'))) return;
@@ -3614,6 +4357,16 @@ const ACT = {
   'export-csv': () => exportCSV(),
   erase: () => eraseAll(),
   'nudge-x': () => { ui.hideNudge = true; render(); },
+  'start-pick': () => startPicker(),
+  accent: t => { if(!ACCENTS.some(a => a.id === t.dataset.v)) return; prefSet('rxr_accent', t.dataset.v); applyAccent(); render(); },
+  'whats-new': () => openWhatsNew(),
+  recap: () => openRecap(),
+  'set-name': () => editName(),
+  'sess-fold': t => {
+    const id = t.dataset.id, open = !ui.histOpen.has(id), card = t.closest('.sess-fold'), list = card && card.querySelector('.sess-ex');
+    open ? ui.histOpen.add(id) : ui.histOpen.delete(id);
+    t.setAttribute('aria-expanded', String(open)); if(card) card.classList.toggle('open', open); if(list) list.hidden = !open;
+  },
   'install-x': () => { prefSet('it_hide_install', '1'); render(); },
   'prog-view': t => { ui.progView = t.dataset.v; render(); },
   'len-unit': t => { S.settings.lenUnit = t.dataset.v; save(); render(); },
@@ -3652,6 +4405,7 @@ $('#file-in').addEventListener('change', async e => {
 /* =========================================================
    Boot
    ========================================================= */
+const returning = (() => { try { return !!localStorage.getItem(KEY); } catch(e){ return false; } })();   // had data before this version?
 S = load();
 if(migratedCount) save();
 if(S.active && S.active.restEnd > Date.now()){ rest.end = S.active.restEnd; rest.total = S.active.restTotal || S.settings.rest; }
@@ -3665,6 +4419,7 @@ window.addEventListener('pagehide', flushSave);
 let resizeT;
 window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if(ui.tab === 'progress') render(); sheets.forEach(s => { if(s.opts.live) s.rerender(); }); }, 200); });
 if(migratedCount) setTimeout(() => toast(`Imported ${plural(migratedCount,'workout')} from IronTrack v3`), 600);
+if(prefGet(WN_KEY) !== APP.version){ if(returning) setTimeout(openWhatsNew, 500); else prefSet(WN_KEY, APP.version); }
 if('serviceWorker' in navigator && (isHosted || location.hostname === 'localhost')){
   navigator.serviceWorker.register('sw.js').catch(() => {});
   const checkUpdate = () => navigator.serviceWorker.ready.then(reg => { if(reg.active) reg.active.postMessage('check'); }).catch(() => {});
@@ -3674,7 +4429,7 @@ if('serviceWorker' in navigator && (isHosted || location.hostname === 'localhost
   navigator.serviceWorker.addEventListener('message', async e => {
     if(e.data !== 'update-ready' || updatePrompted) return;
     updatePrompted = true;
-    const k = await dialog({ title:'Update ready', message:'A new version of IronTrack has downloaded. Your data isn’t affected.', buttons:[{ k:'later', label:'Later' }, { k:'reload', label:'Reload', bold:true }] });
+    const k = await dialog({ title:'Update ready', message:`A new version of ${APP.name} has downloaded. Your data isn’t affected.`, buttons:[{ k:'later', label:'Later' }, { k:'reload', label:'Reload', bold:true }] });
     if(k === 'reload'){ flushSave(); location.reload(); }
   });
   navigator.serviceWorker.startMessages();

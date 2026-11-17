@@ -1,14 +1,14 @@
 {
   "id": "./",
-  "name": "IronTrack",
-  "short_name": "IronTrack",
-  "description": "Workout tracker — log sets, routines, PRs and progress.",
+  "name": "Rep by Rep RSA",
+  "short_name": "Rep by Rep",
+  "description": "Workout tracker: log sets, routines, cardio, records and progress, one step at a time.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#0b0c0f",
+  "theme_color": "#0b0c0f",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

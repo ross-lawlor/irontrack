@@ -1,11 +1,13 @@
-/* IronTrack service worker.
+/* Rep by Rep RSA service worker (the app was called IronTrack until 4.7).
    - Serves the app from the device cache, so it opens instantly and works offline.
    - The page sends 'check' on launch and whenever it returns to the foreground;
      the worker then downloads index.html and, if it changed, stores it and
      replies 'update-ready' so the page can offer a reload. */
-const CACHE = 'irontrack-v1';
+// v2 (5.0, Rep by Rep RSA): new icons and the bundled fonts. Changing the name makes phones fetch every file again.
+const CACHE = 'irontrack-v2';
 const INDEX = './index.html';
-const ASSETS = ['./', INDEX, './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const ASSETS = ['./', INDEX, './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png',
+  './fonts/archivo.woff2', './fonts/archivo-italic.woff2', './fonts/jetbrains-mono.woff2'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
