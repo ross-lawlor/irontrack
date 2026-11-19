@@ -908,6 +908,9 @@ textarea.field{border-radius:15px}
 .c-stats b{font:800 24px/1 var(--f-disp);font-stretch:70%;letter-spacing:0}
 .c-stats{font-size:12.5px}
 .cico{border-radius:10px}
+/* Cardio blocks, icons and the type picker share one colour, the accent (5.1). The charts keep a colour
+   per type (CT[type].c) so the stacks and lines can be told apart. */
+.cico,.ex-card.cd,.sess-cd,.c-types button{--c:var(--accent);--cs:var(--accent-soft)}
 .cico.lg{border-radius:15px}
 .eff{font:700 10px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;border-radius:7px;padding:5px 8px}
 .eff-pick button,.c-types button{border-radius:14px;background:#0e1013;border:1px solid var(--line);font-size:12px}
@@ -1044,7 +1047,7 @@ textarea.field{border-radius:15px}
 /* The app was called IronTrack until 4.7. KEY (and the backup format) keep the old name on purpose:
    it is where every phone already has its data, so it must never change. */
 const KEY = 'irontrack_v4';
-const APP = { name:'Rep by Rep RSA', short:'Rep by Rep', version:'5.0', word:['REP BY REP', 'RSA'], tagline:'Step by step' };
+const APP = { name:'Rep by Rep RSA', short:'Rep by Rep', version:'5.1', word:['REP BY REP', 'RSA'], tagline:'Step by step' };
 /* The logo: a staircase, one step per session. Ids get a suffix so several copies can share a page. */
 const MARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Rep by Rep RSA">
   <defs>
@@ -1829,11 +1832,13 @@ function backupNudge(){
 }
 /* This week as a staircase: every session logged is one step up. Days with nothing logged stay
    level, days still to come are outlines. "All time" counts every workout and cardio activity. */
-const lifeSteps = () => S.sessions.length + S.cardio.length;
+/* Cardio logged on its own, not inside a workout. A workout with a warm-up run is one step, not two (5.1). */
+function loneCardio(){ const ids = new Set(S.sessions.map(s => s.id)); return S.cardio.filter(a => !(a.sess && ids.has(a.sess))); }
+const lifeSteps = () => S.sessions.length + loneCardio().length;
 function weekStepsHTML(){
   const day0 = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()), now = new Date(), w0 = startOfWeek(now);
   const idx = d => Math.round((day0(d) - day0(w0)) / 864e5), today = idx(now), per = [0, 0, 0, 0, 0, 0, 0];
-  [...S.sessions, ...S.cardio].forEach(x => { const i = idx(new Date(x.start)); if(i >= 0 && i < 7) per[i]++; });
+  [...S.sessions, ...loneCardio()].forEach(x => { const i = idx(new Date(x.start)); if(i >= 0 && i < 7) per[i]++; });
   const total = per.reduce((a, b) => a + b, 0), last = per.reduce((m, n, i) => n && i <= today ? i : m, -1);
   let lvl = 0;
   const cols = per.map((n, i) => { lvl += n;
@@ -1917,19 +1922,43 @@ async function finishWorkout(){
       cPending.forEach(en => { if(en.cd){ const sec = Math.round(cdElapsed(en.cd, Date.now()) / 1000); delete en.cd; if(sec > 0){ const st = cdState(en); cfSet(st, null, 'time', sec); cfDerive(st, null, 'time'); cdWrite(en, st); } } cdComplete(ctx, en, true); });
     }
   }
+  const start = preStart(d);
   const entries = cleanEntries(d.entries.filter(en => !isCd(en)), false), cardio = cdCollect(d, false);
   if(!entries.length && !cardio.length){
     const k = await dialog({ title:'Nothing completed', message:'Tick off at least one set or cardio block to save this workout.', buttons:[{k:'discard', label:'Discard', red:true}, {k:'back', label:'Keep Going', bold:true}] });
     if(k === 'discard') discardNow();
     return;
   }
-  const sess = { id:d.id, name:(d.name||'').trim() || defaultName(new Date(d.start)), start:d.start, end:new Date().toISOString(), legacy:false, routineId:d.routineId||null, notes:(d.notes||'').trim(), entries };
+  const sess = { id:d.id, name:(d.name||'').trim() || defaultName(new Date(d.start)), start, end:new Date().toISOString(), legacy:false, routineId:d.routineId||null, notes:(d.notes||'').trim(), entries };
   S.sessions.push(sess);
   S.cardio.push(...cardio);
   S.active = null;
   rest.end = 0; rest.doneUntil = 0;
   save(); syncWakeLock(); render(); updateDock();
-  showSummary(sess);
+  showSummary(sess, new Date(d.start) - new Date(start));
+}
+/* When the workout really started (5.1). Cardio typed in by hand at the top of a workout that also has
+   lifting is a warm-up done before pressing Start (you ran, then opened the app), so the start moves
+   back by its time: 10 min on the treadmill + 25 min on the clock = a 35 min workout. Cardio timed with
+   the app's timer or stopwatch is already on the clock and adds nothing. Other hand-typed cardio only
+   moves the start if it was logged sooner after Start than it lasted. Gives the warm-ups their real
+   start times too. */
+function preStart(d){
+  const t0 = +new Date(d.start), warm = [];
+  const lifts = d.entries.some(en => !isCd(en) && cleanEntries([en], false).length);
+  let top = lifts, early = t0, sec = 0;
+  for(const en of d.entries){
+    if(!isCd(en)){ if(cleanEntries([en], false).length) top = false; continue; }
+    if(!en.done) continue;
+    const a = cdActivity(en, '');
+    if(!cdValid(en, a) || !(a.dur > 0)) continue;
+    if(en.t0){ top = false; continue; }
+    if(top){ warm.push([en, a.dur]); sec += a.dur; }
+    else if(en.at) early = Math.min(early, +new Date(en.at) - a.dur * 1000);
+  }
+  let t = t0 - sec * 1000;
+  warm.forEach(([en, dur]) => { en.start = new Date(t).toISOString(); t += dur * 1000; });
+  return new Date(Math.min(t0 - sec * 1000, early)).toISOString();
 }
 function cleanEntries(entries, ignoreDone){
   return entries.map(en => {
@@ -1947,7 +1976,7 @@ async function discardWorkout(){
   if(await confirmDlg('Discard workout?', 'Everything you’ve logged in this workout will be lost.', 'Discard')) discardNow();
 }
 
-function showSummary(sess){
+function showSummary(sess, before = 0){
   const prs = cache().prs[sess.id] || [], cds = cardioCache().bySess[sess.id] || [], cprs = cardioCache().prs;
   const cPR = cds.flatMap(a => (cprs[a.id] || []).map(p => ({ a, p })));
   const r = sess.routineId && S.routines.find(x => x.id === sess.routineId);
@@ -1959,7 +1988,7 @@ function showSummary(sess){
       <h2 class="sheet-h1 center">Workout complete</h2>
       <div class="muted center" style="margin-bottom:18px">${esc(sess.name)}</div>
       <div class="tiles${cds.length ? ' three' : ''}">
-        ${tile('Duration', dur ? fmtDurShort(dur) : '—')}
+        ${tile('Duration', dur ? fmtDurShort(dur) : '—', before >= 60000 ? 'incl. warm-up' : '')}
         ${tile('Sets', sessSets(sess))}
         ${cds.length ? tile('Cardio', fmtTrained(sessCardioSec(sess.id))) : ''}
       </div>
@@ -2491,7 +2520,7 @@ function cardioEntryHTML(ctx, en, i){
       </div>`;
     }
   }
-  return `<section class="ex-card cd${en.done && active ? ' done' : ''}" data-ei="${i}" style="--c:${t.c};--cs:${soft(t.c)}">
+  return `<section class="ex-card cd${en.done && active ? ' done' : ''}" data-ei="${i}">
     <div class="ex-head"><div class="ex-name cd-name">${cico(en.type)}<span>${esc(cdLabel(en.type, en.indoor))}</span></div><button class="btn-icon" data-ed="cd-menu" aria-label="Cardio options">${ic('more')}</button></div>
     <div class="ex-sub">${sub}</div>
     <div class="cd-grid">${fields.join('')}</div>
@@ -2560,7 +2589,7 @@ function cdClick(ctx, act, ei){
   else if(act === 'cd-start') cdStartTimer(ctx, en);
   else if(act === 'cd-pause'){ const c = en.cd, now = Date.now(); if(!c) return; if(c.run){ c.acc += now - c.base; c.run = false; } else { c.base = now; c.run = true; } changed(ctx, true); }
   else if(act === 'cd-stop'){ const c = en.cd; if(!c) return; const sec = Math.max(1, Math.round(cdElapsed(c, Date.now()) / 1000)); cdStopTimer(ctx, en, sec); }
-  else if(act === 'cd-cancel'){ delete en.cd; changed(ctx, true); syncWakeLock(); }
+  else if(act === 'cd-cancel'){ delete en.cd; delete en.t0; changed(ctx, true); syncWakeLock(); }
   else if(act === 'cd-menu') cdMenu(ctx, ei);
 }
 async function cdMenu(ctx, ei){
@@ -3011,7 +3040,7 @@ async function routineMenu(id){
    buttons, so the toggle isn't nested inside the open-workout button. Open cards are kept in
    ui.histOpen, so a re-render doesn't fold them again. */
 function sessExLine({ a, e }){
-  if(a) return `<div class="sess-cd" style="--c:${CT[a.type].c}">${ic(CT[a.type].icon)}${esc(cdLabel(a.type, a.indoor))} <span class="faint">· ${esc(cdSummary(a))}</span></div>`;
+  if(a) return `<div class="sess-cd">${ic(CT[a.type].icon)}${esc(cdLabel(a.type, a.indoor))} <span class="faint">· ${esc(cdSummary(a))}</span></div>`;
   const b = entryBest(e.sets);
   return `<div><span class="faint num">${e.sets.length} ×</span> ${esc(e.name)} <span class="faint">${bestLabel(b) ? '· ' + bestLabel(b) : ''}</span></div>`;
 }
@@ -3477,7 +3506,7 @@ function rateParts(a){
 function partOfDay(d){ const h = d.getHours(); return h<5?'Night':h<12?'Morning':h<17?'Afternoon':h<21?'Evening':'Night'; }
 const cardioName = a => a.sess ? cdLabel(a.type, a.indoor) : `${partOfDay(new Date(a.start))} ${CT[a.type].label}`;
 const actWord = n => n === 1 ? '1 activity' : `${n} activities`;
-const cico = (type, cls='') => `<span class="cico ${cls}" style="--c:${CT[type].c};--cs:${soft(CT[type].c)}">${ic(CT[type].icon)}</span>`;
+const cico = (type, cls='') => `<span class="cico ${cls}">${ic(CT[type].icon)}</span>`;
 const effChip = k => EFFORT[k] ? `<span class="eff" style="--c:${EFFORT[k].c};--cs:${soft(EFFORT[k].c, .16)}"><span class="lv">${[1,2,3,4].map(i => `<i class="${i <= k ? 'on' : ''}"></i>`).join('')}</span>${EFFORT[k].label}</span>` : '';
 
 function normCardio(list){
@@ -3687,7 +3716,7 @@ function openCardioLog(id, { type } = {}){
     const t = CT[st.type], du = DU();
     return `${sheetHead(btnClose('Cancel'), orig ? 'Edit Cardio' : 'Log Cardio', `<button class="text-btn bold" data-a="save">Save</button>`)}
     <div class="sheet-body">
-      <div class="c-types">${CTYPES.map(k => `<button data-a="type" data-v="${k}" class="${st.type === k ? 'on' : ''}" style="--c:${CT[k].c}">${ic(CT[k].icon)}<span>${CT[k].pick}</span></button>`).join('')}</div>
+      <div class="c-types">${CTYPES.map(k => `<button data-a="type" data-v="${k}" class="${st.type === k ? 'on' : ''}">${ic(CT[k].icon)}<span>${CT[k].pick}</span></button>`).join('')}</div>
       <label class="lbl" for="cf-start">Started</label>
       <input class="field" type="datetime-local" id="cf-start" value="${toLocalInput(st.start || defStart())}" max="${toLocalInput(new Date().toISOString())}">
       <div class="list" style="margin-top:16px">
@@ -3927,13 +3956,14 @@ function markForImage(size){
 function monthStats(now = new Date()){
   const s = new Date(now.getFullYear(), now.getMonth(), 1), e = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const inR = x => { const t = new Date(x.start); return t >= s && t < e; };
-  const ses = S.sessions.filter(inR), car = S.cardio.filter(inR), prs = cache().prs, cprs = cardioCache().prs;
-  const sec = ses.reduce((a, x) => a + (sessDur(x) || 0) / 1000, 0) + car.reduce((a, x) => a + (x.dur || 0), 0);
+  const ses = S.sessions.filter(inR), car = S.cardio.filter(inR), solo = loneCardio().filter(inR), prs = cache().prs, cprs = cardioCache().prs;
+  // A workout's own cardio is already inside the workout's time and count.
+  const sec = ses.reduce((a, x) => a + (sessDur(x) || 0) / 1000, 0) + solo.reduce((a, x) => a + (x.dur || 0), 0);
   const prCount = ses.reduce((a, x) => a + (prs[x.id] || []).length, 0) + car.reduce((a, x) => a + (cprs[x.id] || []).length, 0);
   let top = null;
   ses.forEach(x => x.entries.forEach(en => en.sets.forEach(st => { if(st.w > 0 && !st.t && (!top || st.w > top.w)) top = { w:st.w, r:st.r, name:en.name }; })));
   return { month:s.toLocaleDateString(undefined, { month:'long', year:'numeric' }), monthShort:s.toLocaleDateString(undefined, { month:'long' }),
-    count:ses.length + car.length, sec, prCount, top, km:sumDist(car) };
+    count:ses.length + solo.length, sec, prCount, top, km:sumDist(car) };
 }
 async function recapCanvas(){
   const m = monthStats(), R = recapColors(), F = RECAP_FONT, W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
@@ -4015,7 +4045,7 @@ const WHATS_NEW = [
     ['person', 'Your name', 'Add a display name in Settings and the Workout tab greets you.']
   ], note:'Your home-screen icon may show the old logo for a while. It’s the same app, and your data is unaffected.' }
 ];
-const WN_KEY = 'rxr_seen_version';
+const WN_KEY = 'rxr_seen_version', WN_V = WHATS_NEW[0].v;  // the latest sheet, not APP.version: not every release has one (5.1 didn't)
 function openWhatsNew(){
   const w = WHATS_NEW[0];
   openSheet({ full:true,
@@ -4026,7 +4056,7 @@ function openWhatsNew(){
       <div class="wn-list">${w.items.map(([icon, t, d]) => `<div class="wn-item"><span class="wn-ico">${ic(icon)}</span><div><div class="wn-it">${t}</div><div class="wn-id">${d}</div></div></div>`).join('')}</div>
       ${w.note ? `<div class="caption">${w.note}</div>` : ''}
       <div class="btn-col"><button class="btn btn-block btn-primary" data-a="close">Let’s Go</button></div></div>`,
-    onClose: () => prefSet(WN_KEY, APP.version)
+    onClose: () => prefSet(WN_KEY, WN_V)
   });
 }
 
@@ -4419,7 +4449,7 @@ window.addEventListener('pagehide', flushSave);
 let resizeT;
 window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if(ui.tab === 'progress') render(); sheets.forEach(s => { if(s.opts.live) s.rerender(); }); }, 200); });
 if(migratedCount) setTimeout(() => toast(`Imported ${plural(migratedCount,'workout')} from IronTrack v3`), 600);
-if(prefGet(WN_KEY) !== APP.version){ if(returning) setTimeout(openWhatsNew, 500); else prefSet(WN_KEY, APP.version); }
+if(prefGet(WN_KEY) !== WN_V){ if(returning) setTimeout(openWhatsNew, 500); else prefSet(WN_KEY, WN_V); }
 if('serviceWorker' in navigator && (isHosted || location.hostname === 'localhost')){
   navigator.serviceWorker.register('sw.js').catch(() => {});
   const checkUpdate = () => navigator.serviceWorker.ready.then(reg => { if(reg.active) reg.active.postMessage('check'); }).catch(() => {});
