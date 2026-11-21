@@ -828,6 +828,14 @@ textarea.field{border-radius:15px}
 .set-row.done .set-check{background:var(--g-volt);border-color:transparent;color:var(--on-accent);box-shadow:0 0 18px -2px rgba(var(--volt-rgb),.8)}
 /* ticking a set: the tick pops and throws a ring */
 .set-row.just .set-check{animation:sx-tick .55s var(--ease)}
+/* set tags (5.2): drop rows show ↳ in a dashed box; repped-out reps get a small + in the corner */
+.set-row.drop .set-num{background:transparent;border-style:dashed;color:var(--label-3)}
+.set-row.drop.done .set-num{color:var(--volt);border-color:var(--line-volt)}
+.set-num svg{width:16px;height:16px}
+.reps-cell{position:relative;display:block;min-width:0}
+.plus-mark{position:absolute;top:4px;right:6px;font:800 15px/1 var(--f-disp);font-style:normal;color:var(--volt);pointer-events:none}
+.det-set .n svg{width:14px;height:14px;vertical-align:-2px}
+.det-set.drop .n{color:var(--label-3)}
 @keyframes sx-tick{0%{transform:scale(.7)}45%{transform:scale(1.22);box-shadow:0 0 0 0 rgba(var(--volt-rgb),.7)}100%{transform:scale(1);box-shadow:0 0 0 18px rgba(var(--volt-rgb),0)}}
 .add-set{height:40px;margin-top:8px;border-radius:12px;background:none;border:1px dashed rgba(255,255,255,.16);color:var(--label-2);font:700 10.5px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase}
 .add-set:active{border-color:var(--volt);color:var(--volt)}
@@ -944,6 +952,8 @@ textarea.field{border-radius:15px}
 .as-title{font:700 10.5px/1.3 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--volt);padding:16px;border-bottom:1px solid var(--sep)}
 .as-btn{height:58px;font-size:16px;font-weight:700;color:var(--label)}
 .as-btn + .as-btn{border-top:1px solid var(--sep)}
+.as-msg{font-size:13px;line-height:1.45;color:var(--label-2);padding:12px 18px;text-align:center;border-bottom:1px solid var(--sep)}
+.as-msg b{color:var(--label)}
 .as-btn.red{color:var(--red)}
 .as-btn.bold{font:800 13.5px/1 var(--f-disp);font-stretch:112%;text-transform:uppercase;letter-spacing:.06em;color:var(--volt)}
 .as-btn:active{background:rgba(var(--volt-rgb),.08)}
@@ -988,12 +998,18 @@ textarea.field{border-radius:15px}
   --stairs:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M0 27.5h14v-14h14' fill='none' stroke='%23a66bff' stroke-width='1'/%3E%3C/svg%3E");
   --stair-xl:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpath d='M0 290h50v-50h50v-50h50v-50h50v-50h50v-50h50' fill='none' stroke='%23a66bff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
+:root[data-accent="white"]{ /* White: records stay orange (the default flare) so they still stand out */
+  --volt:#eef0ea; --volt-rgb:238,240,234; --volt-hi-rgb:255,255,255; --volt-hi:#ffffff; --volt-lo:#c4c7bf; --volt-top:#ffffff; --volt-bot:#cfd2ca;
+  --on-accent:#0b0c0f; --on-green:#0b0c0f;
+  --stairs:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M0 27.5h14v-14h14' fill='none' stroke='%23eef0ea' stroke-width='1'/%3E%3C/svg%3E");
+  --stair-xl:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpath d='M0 290h50v-50h50v-50h50v-50h50v-50h50v-50h50' fill='none' stroke='%23eef0ea' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
 /* the logo's stair follows the accent too */
 :root[data-accent] [id^="sx-g"] stop:nth-child(1){stop-color:var(--volt-lo)}
 :root[data-accent] [id^="sx-g"] stop:nth-child(2){stop-color:var(--volt)}
 :root[data-accent] [id^="sx-g"] stop:nth-child(3){stop-color:var(--volt-hi)}
 /* the picker in Profile */
-.accent-pick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:14px 10px}
+.accent-pick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:14px 10px}
 .accent-pick button{display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 2px;border-radius:14px;font:600 9.5px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--label-2);text-align:center}
 .accent-pick i{width:38px;height:38px;border-radius:12px;background:var(--sw);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 16px -6px var(--sw);display:grid;place-items:center}
 .accent-pick button[aria-pressed="true"]{color:var(--label)}
@@ -1047,7 +1063,7 @@ textarea.field{border-radius:15px}
 /* The app was called IronTrack until 4.7. KEY (and the backup format) keep the old name on purpose:
    it is where every phone already has its data, so it must never change. */
 const KEY = 'irontrack_v4';
-const APP = { name:'Rep by Rep RSA', short:'Rep by Rep', version:'5.1', word:['REP BY REP', 'RSA'], tagline:'Step by step' };
+const APP = { name:'Rep by Rep RSA', short:'Rep by Rep', version:'5.2', word:['REP BY REP', 'RSA'], tagline:'Step by step' };
 /* The logo: a staircase, one step per session. Ids get a suffix so several copies can share a page. */
 const MARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Rep by Rep RSA">
   <defs>
@@ -1078,7 +1094,8 @@ const ACCENTS = [
   { id:'orange', name:'Electric orange', color:'#ff7a1a', hi:'#ffa95e', lo:'#e25a00', on:'#1a0b00' },
   { id:'sky',    name:'Light blue',      color:'#5cc6ff', hi:'#a6e1ff', lo:'#2a9fe0', on:'#03121c' },
   { id:'cobalt', name:'Dark blue',       color:'#4a78ff', hi:'#8fa9ff', lo:'#2a52e0', on:'#ffffff' },
-  { id:'violet', name:'Violet',          color:'#a66bff', hi:'#c9a6ff', lo:'#7d3ff0', on:'#12061f' }
+  { id:'violet', name:'Violet',          color:'#a66bff', hi:'#c9a6ff', lo:'#7d3ff0', on:'#12061f' },
+  { id:'white',  name:'White',           color:'#eef0ea', hi:'#ffffff', lo:'#c4c7bf', on:'#0b0c0f' }
 ];
 let ACCENT = ACCENTS[0].color;
 const accentPick = () => ACCENTS.find(a => a.id === prefGet('rxr_accent')) || ACCENTS[0];
@@ -1143,6 +1160,7 @@ const ICONS = {
   list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r=".8" fill="currentColor"/><circle cx="4.5" cy="12" r=".8" fill="currentColor"/><circle cx="4.5" cy="18" r=".8" fill="currentColor"/>',
   gear:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
+  drop:'<path d="M6 4v7a4 4 0 0 0 4 4h9"/><path d="M15 11l4 4-4 4"/>',
   check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   chevR:'<path d="M9 5l7 7-7 7"/>',
   chevL:'<path d="M15 5l-7 7 7 7"/>',
@@ -1210,7 +1228,22 @@ function fmtCompact(kg){ const v = toDisp(kg); return v >= 10000 ? fmtNum(v/1000
 // Weight first, then reps (matches the KG | REPS input order). unit=false drops the unit for the narrow Previous column.
 const setStr = (s, unit = true) => s.t
   ? `${s.t}s${s.r ? ' × ' + s.r : ''}${s.w > 0 ? ' @ ' + fmtW(s.w) + ' ' + U() : ''}`
-  : (s.w>0 ? fmtW(s.w) + (unit ? ' ' + U() : '') : 'BW') + ' × ' + s.r;
+  : (s.w>0 ? fmtW(s.w) + (unit ? ' ' + U() : '') : 'BW') + ' × ' + s.r + (s.plus ? '+' : '');
+/* Set tags (5.2): plus = repped out (went as far as they could; the reps are the full ones, the +
+   covers partials after), drop = a drop set that belongs to the set before it. A drop in first place
+   has nothing to belong to, so it counts as a normal set. */
+const isDropRow = (sets, j) => j > 0 && !!(sets[j] && sets[j].drop);
+const setCount = sets => sets.reduce((a, x, j) => a + (isDropRow(sets, j) ? 0 : 1), 0);
+function setNum(sets, j){ let n = 0; for(let i = 0; i <= j && i < sets.length; i++) if(!isDropRow(sets, i)) n++; return n; }
+const setNumHTML = (sets, j) => isDropRow(sets, j) ? ic('drop') : setNum(sets, j);
+// "25 kg × 6 → 20 kg × 4+ · 25 kg × 8"
+const setsStr = sets => sets.map((x, j) => (j ? (isDropRow(sets, j) ? ' → ' : ' · ') : '') + setStr(x)).join('');
+/* The same set in another workout: the nth main set, or that set's nth drop. Matching on this
+   instead of row position keeps Previous lined up when drops come and go. */
+function setKeys(sets){ let m = -1, d = 0; return (sets || []).map((x, j) => { if(isDropRow(sets, j)) d++; else { m++; d = 0; } return m + '.' + d; }); }
+function matchSet(sets, j, other){ if(!other) return null; const i = setKeys(other).indexOf(setKeys(sets)[j]); return i < 0 ? null : other[i]; }
+// A drop's suggested weight: about 20% lighter, rounded down to 2.5 kg / 5 lb.
+const dropW = w => { const st = U() === 'lb' ? 5 : 2.5, v = Math.floor(toDisp(w) * 0.8 / st) * st; return v > 0 ? fromDisp(v) : 0; };
 const fmtSecs = sec => sec < 60 ? sec + 's' : fmtClock(sec);
 const LU = () => S.settings.lenUnit;
 const metricUnit = m => m.kind === 'mass' ? U() : m.kind === 'len' ? LU() : '%';
@@ -1316,8 +1349,9 @@ function cleanSets(sets){
   return (Array.isArray(sets) ? sets : []).map(s => {
     const o = { w: Math.max(0, toNum(s.w ?? s.weight) || 0), r: Math.max(0, Math.round(toNum(s.r ?? s.reps) || 0)) };
     const t = Math.round(toNum(s.t) || 0); if(t > 0) o.t = t;
+    else { if(s.plus) o.plus = true; if(s.drop) o.drop = true; }
     return o;
-  }).filter(s => s.r > 0 || s.t > 0);
+  }).filter(s => s.r > 0 || s.t > 0).map((s, i) => { if(i === 0) delete s.drop; return s; });
 }
 function normalize(d){
   const st = freshState();
@@ -1502,7 +1536,7 @@ function getEx(id){
   return { id, name:'Exercise', cat:'Other', deleted:true };
 }
 const restFor = exId => getEx(exId).rest || S.settings.rest;
-function sessSets(s){ return s.entries.reduce((a,e) => a + e.sets.length, 0); }
+function sessSets(s){ return s.entries.reduce((a,e) => a + setCount(e.sets), 0); }
 function weekStats(offset=0){
   const ws = addDays(startOfWeek(new Date()), -7*offset), we = addDays(ws, 7);
   const inWk = x => { const d = new Date(x.start); return d >= ws && d < we; };
@@ -1560,10 +1594,10 @@ async function promptDlg(title, message, value='', placeholder='', okLabel='Save
   const r = await dialog({ title, message, input:{ value, placeholder }, buttons:[{k:'cancel', label:'Cancel'}, {k:'ok', label:okLabel, bold:true}] });
   return r.k === 'ok' ? r.value : null;
 }
-function actionSheet({ title, actions }){
+function actionSheet({ title, msg, actions }){   // msg: fixed HTML from the app, never user text
   return new Promise(res => {
     const w = document.createElement('div'); w.className = 'as-wrap';
-    w.innerHTML = `<div class="as-sheet"><div class="as-group">${title?`<div class="as-title">${esc(title)}</div>`:''}${actions.map(a => `<button class="as-btn ${a.red?'red':''} ${a.bold?'bold':''}" data-k="${esc(a.k)}">${esc(a.label)}</button>`).join('')}</div>
+    w.innerHTML = `<div class="as-sheet"><div class="as-group">${title?`<div class="as-title">${esc(title)}</div>`:''}${msg?`<div class="as-msg">${msg}</div>`:''}${actions.map(a => `<button class="as-btn ${a.red?'red':''} ${a.bold?'bold':''}" data-k="${esc(a.k)}">${esc(a.label)}</button>`).join('')}</div>
       <div class="as-group"><button class="as-btn bold" data-k="">Cancel</button></div></div>`;
     document.body.appendChild(w);
     w.addEventListener('click', e => {
@@ -1895,10 +1929,10 @@ function newEntry(exId, draft, n){
     const iv = exIv(ex), count = Math.min(20, n || iv.sets);
     return { exId, name:ex.name, cat:ex.cat, mode:'timed', iv:{ work:iv.work, rest:iv.rest }, sets:Array.from({ length:count }, () => ({ w:null, r:null, t:null, done:false })) };
   }
-  const count = Math.min(12, n || (prev ? prev.length : 3));
+  const count = Math.min(12, n || (prev ? setCount(prev) : 3));
   return { exId, name:ex.name, cat:ex.cat, sets:Array.from({ length:count }, () => ({ w:null, r:null, done:false })) };
 }
-function routineItems(sess){ return sessItems(sess).map(({ a, e }) => a ? { cardio:a.type, indoor:!!a.indoor, tgt:tgtFrom(a) } : { exId:e.exId, sets:Math.min(12, e.sets.length) }); }
+function routineItems(sess){ return sessItems(sess).map(({ a, e }) => a ? { cardio:a.type, indoor:!!a.indoor, tgt:tgtFrom(a) } : { exId:e.exId, sets:Math.min(12, setCount(e.sets)) }); }
 /* Same exercises and machines in the same order (cardio targets may differ from one workout to the next). */
 const routineShape = items => JSON.stringify(items.map(i => i.cardio ? 'c:' + i.cardio + ':' + !!i.indoor : i.exId + ':' + i.sets));
 function startRoutine(id){ const r = S.routines.find(x => x.id === id); if(r) startWorkout({ name:r.name, routineId:r.id, items:r.items }); }
@@ -1963,12 +1997,19 @@ function preStart(d){
 function cleanEntries(entries, ignoreDone){
   return entries.map(en => {
     const ex = getEx(en.exId);
-    return { exId:en.exId, name:ex.name, cat:ex.cat, sets: en.sets.filter(s => (ignoreDone || s.done) && (s.r > 0 || s.t > 0)).map(s => {
+    // A drop whose own set wasn't kept becomes a normal set (and later drops belong to it).
+    const sets = []; let parent = false;
+    for(const s of en.sets){
+      const keep = (ignoreDone || s.done) && (s.r > 0 || s.t > 0);
+      if(!s.drop) parent = keep;
+      if(!keep) continue;
       const o = { w: Math.max(0, s.w || 0), r: s.r || 0 };
       const t = s.t > 0 ? s.t : (en.mode === 'timed' && en.iv ? en.iv.work : 0);
       if(t > 0) o.t = t;
-      return o;
-    }) };
+      else { if(s.plus) o.plus = true; if(s.drop && parent) o.drop = true; }
+      sets.push(o); parent = true;
+    }
+    return { exId:en.exId, name:ex.name, cat:ex.cat, sets };
   }).filter(e => e.sets.length);
 }
 function discardNow(){ S.active = null; rest.end = 0; rest.doneUntil = 0; save(); syncWakeLock(); render(); updateDock(); toast('Workout discarded'); }
@@ -1995,7 +2036,7 @@ function showSummary(sess, before = 0){
       ${cPR.length ? `<div class="group-h">${plural(cPR.length, 'cardio record')}</div><div class="list">${cPR.map(({ a, p }) => { const t = cardioRecText(p.kind, p.v, a.type); return `<div class="row">${ic('trophy')}<div class="grow"><div class="title">${esc(t.label)}</div><div class="sub">${esc(cdLabel(a.type, a.indoor))}</div></div><span class="trail num" style="color:var(--orange);font-weight:600">${esc(t.text)}</span></div>`; }).join('')}</div>` : ''}
       ${prs.length ? `<div class="group-h">${plural(prs.length,'personal record')}</div><div class="list">${prs.map(p => { const t = prText(p); return `<div class="row">${ic('trophy')}<div class="grow"><div class="title">${esc(getEx(p.exId).name)}</div><div class="sub">${esc(t.label)}</div></div><span class="trail num" style="color:var(--orange);font-weight:600">${esc(t.text)}</span></div>`; }).join('')}</div>` : ''}
       <div class="group-h">Exercises</div>
-      <div class="list">${sessItems(sess).map(({ a, e }) => { if(a) return `<div class="row">${cico(a.type)}<div class="grow"><div class="title">${esc(cdLabel(a.type, a.indoor))}</div><div class="sub">${esc(cdSummary(a))}</div></div></div>`; const b = entryBest(e.sets); return `<div class="row"><div class="grow"><div class="title">${esc(e.name)}</div><div class="sub">${plural(e.sets.length,'set')}</div></div><span class="trail num">${bestLabel(b) ? 'Best ' + bestLabel(b) : ''}</span></div>`; }).join('')}</div>
+      <div class="list">${sessItems(sess).map(({ a, e }) => { if(a) return `<div class="row">${cico(a.type)}<div class="grow"><div class="title">${esc(cdLabel(a.type, a.indoor))}</div><div class="sub">${esc(cdSummary(a))}</div></div></div>`; const b = entryBest(e.sets); return `<div class="row"><div class="grow"><div class="title">${esc(e.name)}</div><div class="sub">${plural(setCount(e.sets),'set')}</div></div><span class="trail num">${bestLabel(b) ? 'Best ' + bestLabel(b) : ''}</span></div>`; }).join('')}</div>
       <div class="btn-col">
         ${!r ? `<button class="btn btn-block btn-tinted" data-a="as-routine">${ic('repeat')} Save as Routine</button>` : differs ? `<button class="btn btn-block btn-tinted" data-a="update-routine">${ic('repeat')} Update “${esc(r.name)}”</button>` : ''}
         <button class="btn btn-block btn-primary" data-a="close">Done</button>
@@ -2046,8 +2087,14 @@ function renderEditor(ctx){
 }
 function phFor(ctx, en, si){
   const prev = lastPerf(en.exId, ctx.draft);
-  if(prev && prev[si]) return prev[si];
-  const before = si > 0 && en.sets[si-1];
+  const p = matchSet(en.sets, si, prev); if(p) return p;
+  if(isDropRow(en.sets, si)){
+    // No drop to copy from last time: suggest about 20% lighter than the set before, and no reps.
+    const b = en.sets[si-1], w = b.w != null ? b.w : ((phFor(ctx, en, si-1) || {}).w || 0);
+    return w > 0 ? { w:dropW(w), r:null } : null;
+  }
+  let bi = si - 1; while(bi > 0 && isDropRow(en.sets, bi)) bi--;   // the last main set, not its drops
+  const before = bi >= 0 && en.sets[bi];
   if(before && before.r > 0) return { w:before.w || 0, r:before.r };
   if(prev && prev.length) return prev[prev.length-1];
   return null;
@@ -2070,14 +2117,15 @@ function entryHTML(ctx, en, i){
   </section>`;
 }
 function setHTML(ctx, en, s, j, prev, best){
-  const p = prev && prev[j];
+  const p = matchSet(en.sets, j, prev);
   const ph = phFor(ctx, en, j);
   const pr = ctx.mode === 'active' && s.done && isPR(s, best);
-  return `<div class="set-grid set-row${s.done ? ' done' : ''}${pr ? ' pr' : ''}" data-si="${j}">
-    <button class="set-num" data-ed="set-menu" aria-label="Set ${j+1} options">${pr ? ic('trophy') : j+1}</button>
+  const drop = isDropRow(en.sets, j), n = setNum(en.sets, j);
+  return `<div class="set-grid set-row${s.done ? ' done' : ''}${pr ? ' pr' : ''}${drop ? ' drop' : ''}" data-si="${j}">
+    <button class="set-num" data-ed="set-menu" aria-label="${drop ? `Drop set after set ${n}` : `Set ${n}`} options">${pr ? ic('trophy') : setNumHTML(en.sets, j)}</button>
     <button class="set-prev" data-ed="use-prev" ${p ? '' : 'disabled'}>${p ? setStr(p, false) : '—'}</button>
     <input class="set-in" data-f="w" inputmode="decimal" autocomplete="off" value="${s.w != null ? fmtW(s.w) : ''}" placeholder="${ph ? (ph.w > 0 ? fmtW(ph.w) : '0') : ''}" aria-label="Weight">
-    <input class="set-in" data-f="r" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${s.r != null ? s.r : ''}" placeholder="${ph ? ph.r : ''}" aria-label="Reps">
+    ${s.plus ? '<span class="reps-cell">' : ''}<input class="set-in" data-f="r" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${s.r != null ? s.r : ''}" placeholder="${ph && ph.r != null ? ph.r : ''}" aria-label="Reps${s.plus ? ', repped out' : ''}">${s.plus ? '<i class="plus-mark" aria-hidden="true">+</i></span>' : ''}
     <button class="set-check" data-ed="check" aria-label="Complete set">${ic('check')}</button>
   </div>`;
 }
@@ -2110,7 +2158,7 @@ function timedSetHTML(ctx, en, s, j, prev, best){
 }
 function updateMeta(ctx){
   let n = 0;
-  for(const e of ctx.draft.entries) for(const s of e.sets){ if(ctx.mode === 'edit' ? (s.r > 0 || s.t > 0) : s.done) n++; }
+  for(const e of ctx.draft.entries) e.sets.forEach((s, j) => { if(!isDropRow(e.sets, j) && (ctx.mode === 'edit' ? (s.r > 0 || s.t > 0) : s.done)) n++; });
   const a = ctx.root.querySelector('.m-sets');
   if(a) a.textContent = n;
   const l = ctx.root.querySelector('.m-sets-l'); if(l) l.textContent = n === 1 ? 'set' : 'sets';
@@ -2123,7 +2171,7 @@ function refreshRowPR(ctx, en, s, row, si){
   if(ctx.mode !== 'active') return false;
   const pr = s.done && isPR(s, bestFor(en.exId, ctx.draft));
   row.classList.toggle('pr', pr);
-  row.querySelector('.set-num').innerHTML = pr ? ic('trophy') : si + 1;
+  row.querySelector('.set-num').innerHTML = pr ? ic('trophy') : setNumHTML(en.sets, si);
   return pr;
 }
 function edInput(ctx, e){
@@ -2182,7 +2230,7 @@ function edClick(ctx, e){
     case 'iv-start': startIntervals(ctx, en); break;
     case 'set-menu': setMenu(ctx, ei, si); break;
     case 'use-prev': {
-      const p = (lastPerf(en.exId, ctx.draft) || [])[si]; if(!p) break;
+      const p = matchSet(en.sets, si, lastPerf(en.exId, ctx.draft)); if(!p) break;
       const s = en.sets[si]; s.w = p.w; s.r = p.r;
       row.querySelector('[data-f=w]').value = fmtW(p.w);
       row.querySelector('[data-f=r]').value = p.r;
@@ -2198,7 +2246,7 @@ function toggleSet(ctx, ei, si, row){
   unlockAudio();
   if(s.done){
     s.done = false; row.classList.remove('done', 'pr');
-    row.querySelector('.set-num').textContent = si + 1;
+    row.querySelector('.set-num').innerHTML = setNumHTML(en.sets, si);
     changed(ctx, en.mode === 'timed'); return;
   }
   const ph = phFor(ctx, en, si);
@@ -2224,7 +2272,12 @@ function toggleSet(ctx, ei, si, row){
   row.classList.add('done', 'just'); setTimeout(() => row.classList.remove('just'), 350);
   if(refreshRowPR(ctx, en, s, row, si)){ toast(`🏆 New PR — ${getEx(en.exId).name}`); haptic([30,50,30]); }
   else haptic(15);
-  if(ctx.mode === 'active' && S.settings.autoRest) startRest(restFor(en.exId), getEx(en.exId).name);
+  if(ctx.mode === 'active' && S.settings.autoRest){
+    // Straight into a drop set: no rest. The timer starts after the last drop.
+    const next = en.sets[si+1];
+    if(next && next.drop && !next.done){ if(rest.end) stopRest(); }
+    else startRest(restFor(en.exId), getEx(en.exId).name);
+  }
   changed(ctx);
 }
 async function exMenu(ctx, ei){
@@ -2245,7 +2298,7 @@ async function exMenu(ctx, ei){
   const list = ctx.draft.entries;
   if(k === 'fill'){
     const prev = lastPerf(en.exId, ctx.draft) || [];
-    en.sets = prev.map(p => ({ w:p.w, r:p.r || null, t:p.t || null, done:true }));
+    en.sets = prev.map(p => ({ w:p.w, r:p.r || null, t:p.t || null, done:true, plus:!!p.plus, drop:!!p.drop }));
     changed(ctx, true);
   }
   else if(k === 'copy1'){
@@ -2254,7 +2307,7 @@ async function exMenu(ctx, ei){
     changed(ctx, true);
   }
   else if(k === 'mode'){
-    const toTimed = en.mode !== 'timed', keep = en.sets.filter(s => s.done);
+    const toTimed = en.mode !== 'timed', keep = en.sets.filter(s => s.done).map(s => toTimed ? { ...s, plus:false, drop:false } : s);
     if(toTimed){ ex.mode = 'timed'; ex.iv = exIv(ex); en.mode = 'timed'; en.iv = { work:ex.iv.work, rest:ex.iv.rest }; }
     else { delete ex.mode; delete en.mode; delete en.iv; }
     const want = toTimed ? ex.iv.sets : 3;
@@ -2276,10 +2329,25 @@ async function exMenu(ctx, ei){
   }
 }
 async function setMenu(ctx, ei, si){
-  const en = ctx.draft.entries[ei];
-  const k = await actionSheet({ title:`Set ${si+1}`, actions:[{ k:'dup', label:'Duplicate Set' }, { k:'del', label:'Delete Set', red:true }] });
-  if(k === 'dup'){ const s = en.sets[si]; en.sets.splice(si+1, 0, { w:s.w, r:s.r, t:s.t || null, done:false }); changed(ctx, true); }
-  else if(k === 'del'){ en.sets.splice(si, 1); changed(ctx, true); }
+  const en = ctx.draft.entries[ei], sets = en.sets, s = sets[si], timed = en.mode === 'timed';
+  const drop = isDropRow(sets, si), n = setNum(sets, si);
+  let end = si + 1; while(end < sets.length && isDropRow(sets, end)) end++;   // after this row's drops
+  const drops = drop ? 0 : end - si - 1;
+  const actions = [];
+  if(!timed){
+    actions.push({ k:'plus', label: s.plus ? 'Not Repped Out' : 'Repped Out (+)' });
+    actions.push({ k:'drop', label: drop ? 'Add Another Drop' : 'Add Drop Set' });
+    if(drop) actions.push({ k:'main', label:'Make It a Normal Set' });
+  }
+  actions.push({ k:'dup', label:'Duplicate Set' });
+  actions.push({ k:'del', label: drops ? `Delete Set + ${plural(drops, 'Drop')}` : 'Delete Set', red:true });
+  const msg = timed ? '' : '<b>Repped out</b> means you went as far as you could. Log your full reps; the + covers any partials after.';
+  const k = await actionSheet({ title: drop ? `Set ${n} · Drop` : `Set ${n}`, msg, actions });
+  if(k === 'plus'){ s.plus = !s.plus; changed(ctx, true); }
+  else if(k === 'drop'){ sets.splice(end, 0, { w:null, r:null, done:false, drop:true }); changed(ctx, true); }
+  else if(k === 'main'){ s.drop = false; changed(ctx, true); }
+  else if(k === 'dup'){ sets.splice(drop ? si + 1 : end, 0, { w:s.w, r:s.r, t:s.t || null, done:false, drop }); changed(ctx, true); }
+  else if(k === 'del'){ sets.splice(si, drop ? 1 : end - si); changed(ctx, true); }
 }
 
 /* =========================================================
@@ -2690,7 +2758,7 @@ function openSessionEditor(sessId, { routineId } = {}){
   const draft = orig
     ? { id:orig.id, name:orig.name, start:orig.start, durMin: origDur ? Math.round(origDur / 60000) : null, notes:orig.notes || '', routineId:orig.routineId, entries: sessItems(orig).map(({ a, e }) => {
         if(a) return cdFromActivity(a);
-        const o = { exId:e.exId, name:e.name, cat:e.cat, sets:e.sets.map(s => ({ w:s.w, r:s.r, t:s.t || null, done:true })) };
+        const o = { exId:e.exId, name:e.name, cat:e.cat, sets:e.sets.map(s => ({ w:s.w, r:s.r, t:s.t || null, done:true, plus:!!s.plus, drop:!!s.drop })) };
         const ts = e.sets.find(s => s.t); if(ts){ o.mode = 'timed'; o.iv = { work:ts.t, rest:exIv(getEx(e.exId)).rest }; }
         return o;
       }) }
@@ -2877,12 +2945,12 @@ function openExerciseDetail(id){
             ${tReps ? tile('Best set', b.tb.r + '<small>reps</small>', `in ${fmtSecs(b.tb.t)}`) : tile('Longest hold', fmtSecs(b.hold), 'in one set')}
             ${tile('Workouts', ser.length, 'last ' + relPhrase(last.start))}
             ${tile('Work time', tTime < 3600 ? fmtClock(tTime) : fmtDurShort(tTime*1000), 'all time')}
-            ${tReps ? tile('Total reps', ser.reduce((a,p) => a + p.ttot, 0).toLocaleString(), 'all time') : tile('Sets', ser.reduce((a,p) => a + p.sets.length, 0), 'all time')}
+            ${tReps ? tile('Total reps', ser.reduce((a,p) => a + p.ttot, 0).toLocaleString(), 'all time') : tile('Sets', ser.reduce((a,p) => a + setCount(p.sets), 0), 'all time')}
           </div>` : `<div class="tiles">
             ${bw ? tile('Most reps', b.r, 'in one set') : tile('Heaviest', fmtW(b.w) + `<small>${U()}</small>`, `× ${plural(b.wr,'rep')}`)}
             ${bw ? tile('Total reps', ser.reduce((a,p) => a + p.treps, 0).toLocaleString(), 'all time') : tile('Est. 1RM', fmtW1(b.e) + `<small>${U()}</small>`, `from ${fmtW(b.eW)} × ${b.eR}`)}
             ${tile('Workouts', ser.length, 'last ' + relPhrase(last.start))}
-            ${bw ? tile('Sets', ser.reduce((a,p) => a + p.sets.length, 0), 'all time') : tile('Best volume', fmtCompact(bestVol.vol) + `<small>${U()}</small>`, relDay(bestVol.start))}
+            ${bw ? tile('Sets', ser.reduce((a,p) => a + setCount(p.sets), 0), 'all time') : tile('Best volume', fmtCompact(bestVol.vol) + `<small>${U()}</small>`, relDay(bestVol.start))}
           </div>`;
         body += `<div class="card" style="margin-top:12px">
             <div class="seg" style="margin-bottom:14px">${metrics.map(([k, l]) => `<button data-a="metric" data-v="${k}" class="${ui.exMetric === k ? 'on' : ''}">${l}</button>`).join('')}</div>
@@ -2890,7 +2958,7 @@ function openExerciseDetail(id){
             <div class="small faint" style="margin-top:6px">Each point is one workout. Tap or drag to inspect.</div>
           </div>
           <div class="group-h">Recent workouts</div>
-          <div class="list">${ser.slice(-15).reverse().map(p => `<button class="row tap" data-a="sess" data-id="${esc(p.id)}"><div class="grow"><div class="title" style="font-size:15px;font-weight:600">${new Date(p.start).toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short', year:'numeric' })}</div><div class="sub wrap num">${p.sets.map(x => setStr(x)).join(' · ')}</div></div>${chev()}</button>`).join('')}</div>`;
+          <div class="list">${ser.slice(-15).reverse().map(p => `<button class="row tap" data-a="sess" data-id="${esc(p.id)}"><div class="grow"><div class="title" style="font-size:15px;font-weight:600">${new Date(p.start).toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short', year:'numeric' })}</div><div class="sub wrap num">${setsStr(p.sets)}</div></div>${chev()}</button>`).join('')}</div>`;
       }
       return `${sheetHead(btnClose(), '', ex.deleted ? '' : `<button class="text-btn" data-a="edit">Edit</button>`)}
         <div class="sheet-body">
@@ -2942,7 +3010,7 @@ function openSession(id){
             ${(cprs[a.id] || []).map(p => { const r = cardioRecText(p.kind, p.v, a.type); return `<div class="pr-line">${ic('trophy')}<span class="grow">${esc(r.label)}</span><span class="num" style="color:var(--orange);font-weight:600">${esc(r.text)}</span></div>`; }).join('')}
           </button>` : `<div class="card det-ex">
             <div class="det-ex-h"><button class="link-name" data-a="ex" data-id="${esc(e.exId)}">${esc(getEx(e.exId).name)}</button><span class="tag">${esc(e.cat)}</span></div>
-            ${e.sets.map((x, i) => `<div class="det-set"><span class="n">${i+1}</span><span>${setStr(x)}</span><span class="faint small">${x.w > 0 && !x.t ? 'e1RM ' + fmtW1(e1rm(x.w, x.r)) : ''}</span></div>`).join('')}
+            ${e.sets.map((x, i) => `<div class="det-set${isDropRow(e.sets, i) ? ' drop' : ''}"><span class="n">${setNumHTML(e.sets, i)}</span><span>${setStr(x)}</span><span class="faint small">${x.w > 0 && !x.t ? 'e1RM ' + fmtW1(e1rm(x.w, x.r)) : ''}</span></div>`).join('')}
           </div>`).join('')}
           ${sess.notes ? `<div class="card"><div class="small muted" style="margin-bottom:4px">Notes</div><div style="white-space:pre-wrap;font-size:15px;line-height:1.45">${esc(sess.notes)}</div></div>` : ''}
           <div class="btn-col">
@@ -3042,7 +3110,7 @@ async function routineMenu(id){
 function sessExLine({ a, e }){
   if(a) return `<div class="sess-cd">${ic(CT[a.type].icon)}${esc(cdLabel(a.type, a.indoor))} <span class="faint">· ${esc(cdSummary(a))}</span></div>`;
   const b = entryBest(e.sets);
-  return `<div><span class="faint num">${e.sets.length} ×</span> ${esc(e.name)} <span class="faint">${bestLabel(b) ? '· ' + bestLabel(b) : ''}</span></div>`;
+  return `<div><span class="faint num">${setCount(e.sets)} ×</span> ${esc(e.name)} <span class="faint">${bestLabel(b) ? '· ' + bestLabel(b) : ''}</span></div>`;
 }
 function sessCard(s, prs){
   const d = new Date(s.start), dur = sessDur(s), items = sessItems(s), nSets = sessSets(s), open = ui.histOpen.has(s.id);
@@ -3116,7 +3184,7 @@ function renderProgress(){
   const avgDur = durs.length ? durs.reduce((a,b) => a+b, 0) / durs.length : null;
 
   // Sets per muscle group, last 30 days
-  const groups = {}; recent.forEach(s => s.entries.forEach(e => { groups[e.cat] = (groups[e.cat] || 0) + e.sets.length; }));
+  const groups = {}; recent.forEach(s => s.entries.forEach(e => { groups[e.cat] = (groups[e.cat] || 0) + setCount(e.sets); }));
   const gList = Object.entries(groups).sort((a,b) => b[1] - a[1]), gMax = gList.length ? gList[0][1] : 1;
 
   // Top lifts by frequency
@@ -4036,6 +4104,11 @@ async function openRecap(){
    Brand-new users skip it. Settings → What's new opens it again. Add new versions to the top.
    ========================================================= */
 const WHATS_NEW = [
+  { v:'5.2', title:'Repped out and drop sets', intro:'Two extras for the sets that don’t fit the usual pattern. Both sit behind the set number, so nothing changes unless you use them.', items:[
+    ['flame', 'Repped out', 'Went as far as you could? Tap the set number → <b>Repped Out</b>. Log your full reps and they show a + (say 9+) for the partials after.'],
+    ['drop', 'Drop sets', 'Tap the set number → <b>Add Drop Set</b> for a lighter row straight under it. It counts as part of that set, and the rest timer waits until you’re done.'],
+    ['palette', 'White', 'A new accent colour in Settings → Accent colour.']
+  ] },
   { v:'5.0', title:'New look, same app', intro:'IronTrack is now <b>Rep by Rep RSA</b>. Your workouts, routines, records and settings are all still here. There’s nothing to move or set up.', items:[
     ['sparkle', 'A whole new look', 'Iron and volt, with every session one step up the staircase.'],
     ['palette', 'Pick your colour', 'Settings → Accent colour: volt, electric orange, light blue, dark blue or violet.'],
@@ -4271,10 +4344,12 @@ function toCSV(rows){
   return '\ufeff' + rows.map(r => r.map(cell).join(',')).join('\r\n');
 }
 function exportCSV(){
-  const u = U(), rows = [['Date','Time','Workout','Exercise','Muscle group','Set',`Weight (${u})`,'Reps','Time (s)',`Est. 1RM (${u})`,'Duration (min)','Notes']];
+  const u = U(), rows = [['Date','Time','Workout','Exercise','Muscle group','Set',`Weight (${u})`,'Reps','Set type','Time (s)',`Est. 1RM (${u})`,'Duration (min)','Notes']];
   for(const s of cache().sorted){
     const d = new Date(s.start), dur = sessDur(s);
-    s.entries.forEach(e => e.sets.forEach((x, i) => rows.push([dayKey(d), s.legacy ? '' : fmtTime(s.start), s.name, e.name, e.cat, i+1, fmtW(x.w), x.r || '', x.t || '', x.w && !x.t ? fmtW1(e1rm(x.w, x.r)) : '', dur ? Math.round(dur/60000) : '', s.notes || ''])));
+    // A drop keeps the number of the set it belongs to; Set type says "Drop" and/or "Repped out".
+    const kind = (sets, i) => [isDropRow(sets, i) ? 'Drop' : '', sets[i].plus ? 'Repped out' : ''].filter(Boolean).join(', ');
+    s.entries.forEach(e => e.sets.forEach((x, i) => rows.push([dayKey(d), s.legacy ? '' : fmtTime(s.start), s.name, e.name, e.cat, setNum(e.sets, i), fmtW(x.w), x.r || '', kind(e.sets, i), x.t || '', x.w && !x.t ? fmtW1(e1rm(x.w, x.r)) : '', dur ? Math.round(dur/60000) : '', s.notes || ''])));
   }
   saveFile(`repbyrep-workouts-${dayKey(new Date())}.csv`, toCSV(rows), 'text/csv').then(ok => { if(ok) toast('CSV exported'); });
 }
